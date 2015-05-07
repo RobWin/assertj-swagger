@@ -12,7 +12,7 @@ image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/RobWin/as
 == Usage
 
 === Adding assertj-swagger to your project
-The project is published in JCenter and Maven Central.
+The project is not yet published in JCenter and Maven Central.
 
 ==== Maven
 
