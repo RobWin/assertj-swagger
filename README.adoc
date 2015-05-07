@@ -1,17 +1,17 @@
-= swagger-test
+= assertj-swagger
 :author: Robert Winkler
 :version: 0.1.0
 :hardbreaks:
 
-image:https://travis-ci.org/RobWin/swagger-test.svg["Build Status", link="https://travis-ci.org/RobWin/swagger-test"] image:https://coveralls.io/repos/RobWin/swagger-test/badge.svg["Coverage Status", link="https://coveralls.io/r/RobWin/swagger-test"] image:https://api.bintray.com/packages/robwin/maven/swagger-test/images/download.svg[link="https://bintray.com/robwin/maven/swagger-test/_latestVersion"] image:http://img.shields.io/badge/license-ASF2-blue.svg["Apache License 2", link="http://www.apache.org/licenses/LICENSE-2.0.txt"]
-image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/RobWin/swagger-test?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+image:https://travis-ci.org/RobWin/assertj-swagger.svg["Build Status", link="https://travis-ci.org/RobWin/assertj-swagger"] image:https://coveralls.io/repos/RobWin/assertj-swagger/badge.svg["Coverage Status", link="https://coveralls.io/r/RobWin/assertj-swagger"] image:https://api.bintray.com/packages/robwin/maven/assertj-swagger/images/download.svg[link="https://bintray.com/robwin/maven/assertj-swagger/_latestVersion"] image:http://img.shields.io/badge/license-ASF2-blue.svg["Apache License 2", link="http://www.apache.org/licenses/LICENSE-2.0.txt"]
+image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/RobWin/assertj-swagger?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
 == Overview
 
 
 == Usage
 
-=== Adding swagger-test to your project
+=== Adding assertj-swagger to your project
 The project is published in JCenter and Maven Central.
 
 ==== Maven
@@ -31,7 +31,7 @@ The project is published in JCenter and Maven Central.
 
 <dependency>
     <groupId>io.github.robwin</groupId>
-    <artifactId>swagger-test</artifactId>
+    <artifactId>assertj-swagger</artifactId>
     <version>0.1.0</version>
 </dependency>
 ----
@@ -44,10 +44,10 @@ repositories {
     jcenter()
 }
 
-compile "io.github.robwin:swagger-test:0.1.0"
+compile "io.github.robwin:assertj-swagger:0.1.0"
 ----
 
-=== Using swagger-test
+=== Using assertj-swagger
 
 
 
