@@ -1,0 +1,74 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+    }
+}
+description = 'A Swagger assertion library'
+version = '0.1.0'
+group = 'io.github.robwin'
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'jacoco'
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'com.jfrog.bintray'
+apply from: 'gradle/publishing.gradle'
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
+    options.deprecation = true
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile "io.swagger:swagger-compat-spec-parser:1.0.5"
+    compile "org.slf4j:slf4j-api:1.7.12"
+    compile "org.assertj:assertj-core:2.0.0"
+    compile "com.google.guava:guava:18.0"
+    testCompile "junit:junit:4.11"
+    testCompile "ch.qos.logback:logback-classic:1.1.2"
+
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+}
+
+tasks.coveralls {
+    dependsOn 'check'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}
