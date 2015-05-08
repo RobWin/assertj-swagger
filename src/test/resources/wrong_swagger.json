@@ -731,7 +731,7 @@
                         "name": "username",
                         "description": "name that need to be deleted",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     },
                     {
                         "in": "body",
@@ -739,7 +739,7 @@
                         "description": "Updated user object",
                         "required": false,
                         "schema": {
-                            "$ref": "#/definitions/User"
+                            "$ref": "#/definitions/Users"
                         }
                     }
                 ],
@@ -874,7 +874,11 @@
                 },
                 "status": {
                     "type": "string",
-                    "description": "pet status in the store"
+                    "description": "pet status in the store",
+                    "enum": [
+                        "dead",
+                        "alive"
+                    ]
                 }
             }
         },
@@ -919,7 +923,7 @@
                     "format": "date-time"
                 },
                 "status": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Order Status"
                 },
                 "wrongPropertyName": {

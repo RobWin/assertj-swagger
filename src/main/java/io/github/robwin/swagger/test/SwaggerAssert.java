@@ -19,14 +19,18 @@
 package io.github.robwin.swagger.test;
 
 import com.wordnik.swagger.models.*;
-import com.wordnik.swagger.models.parameters.Parameter;
+import com.wordnik.swagger.models.parameters.*;
+import com.wordnik.swagger.models.properties.ArrayProperty;
 import com.wordnik.swagger.models.properties.Property;
+import com.wordnik.swagger.models.properties.RefProperty;
+import com.wordnik.swagger.models.properties.StringProperty;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,8 +134,25 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     private void validateDefinition(String definitionName, Model actualDefinition, Model expectedDefinition) {
         if (expectedDefinition != null) {
-            // TODO Validate Definition
+            validateModel(actualDefinition, expectedDefinition, String.format("Checking model of definition '%s", definitionName));
             validateDefinitionProperties(actualDefinition.getProperties(), expectedDefinition.getProperties(), definitionName);
+        }
+    }
+
+    private void validateModel(Model actualDefinition, Model expectedDefinition, String message) {
+        if (expectedDefinition instanceof ModelImpl) {
+            // TODO Validate ModelImpl
+            softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(ModelImpl.class);
+        } else if (expectedDefinition instanceof RefModel) {
+            // TODO Validate RefModel
+            softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(RefModel.class);
+        } else if (expectedDefinition instanceof ArrayModel) {
+            ArrayModel arrayModel = ((ArrayModel) expectedDefinition);
+            // TODO Validate ArrayModel
+            softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(ArrayModel.class);
+        }else{
+            // TODO Validate all model types
+            softAssertions.assertThat(actualDefinition).isExactlyInstanceOf(expectedDefinition.getClass());
         }
     }
 
@@ -139,7 +160,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         if(MapUtils.isNotEmpty(expectedDefinitionProperties)) {
             softAssertions.assertThat(actualDefinitionProperties).as("Checking properties of definition '%s", definitionName).isNotEmpty();
             if(MapUtils.isNotEmpty(actualDefinitionProperties)){
-                softAssertions.assertThat(actualDefinitionProperties.keySet()).as("Checking number of properties of definition '%s'", definitionName).hasSameElementsAs(expectedDefinitionProperties.keySet());
+                softAssertions.assertThat(actualDefinitionProperties.keySet()).as("Checking properties of definition '%s'", definitionName).hasSameElementsAs(expectedDefinitionProperties.keySet());
                 for (Map.Entry<String, Property> actualDefinitionPropertyEntry : actualDefinitionProperties.entrySet()) {
                     Property expectedDefinitionProperty = expectedDefinitionProperties.get(actualDefinitionPropertyEntry.getKey());
                     Property actualDefinitionProperty = actualDefinitionPropertyEntry.getValue();
@@ -154,6 +175,34 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     private void validateProperty(Property actualProperty, Property expectedProperty, String message) {
         // TODO Validate Property schema
+        if (expectedProperty != null) {
+            if (expectedProperty instanceof RefProperty) {
+                RefProperty refProperty = (RefProperty) expectedProperty;
+                softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(RefProperty.class);
+                // TODO Validate RefProperty
+            } else if (expectedProperty instanceof ArrayProperty) {
+                ArrayProperty arrayProperty = (ArrayProperty) expectedProperty;
+                softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(ArrayProperty.class);
+                // TODO Validate ArrayProperty
+            } else if (expectedProperty instanceof StringProperty) {
+                StringProperty expectedStringProperty = (StringProperty) expectedProperty;
+                softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(StringProperty.class);
+                // TODO Validate StringProperty
+                if(actualProperty instanceof StringProperty){
+                    StringProperty actualStringProperty = (StringProperty) expectedProperty;
+                    List<String> expectedEnums = expectedStringProperty.getEnum();
+                    if (CollectionUtils.isNotEmpty(expectedEnums)) {
+                        softAssertions.assertThat(actualStringProperty.getEnum()).hasSameElementsAs(expectedEnums);
+                    }else{
+                        softAssertions.assertThat(actualStringProperty.getEnum()).isNullOrEmpty();
+                    }
+                }
+            } else {
+                // TODO Validate all other properties
+                softAssertions.assertThat(actualProperty).isExactlyInstanceOf(expectedProperty.getClass());
+            }
+        }
+
     }
 
     private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod){
@@ -166,7 +215,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
                 //Validate produces
                 validateList(actualOperation.getProduces(), expectedOperation.getProduces(),  String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
                 //Validate parameters
-                validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(),  String.format("Checking '%s' of '%s' operation of path '%s'", "parameters", httpMethod, path));
+                validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(), httpMethod, path);
                 //Validate responses
                 validateResponses(actualOperation.getResponses(), expectedOperation.getResponses(), httpMethod, path);
             }
@@ -175,16 +224,91 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         }
     }
 
-    private void validateParameters(List<Parameter> actualOperationParameters,  List<Parameter> expectedOperationParametersParameters, String message) {
-        if(CollectionUtils.isNotEmpty(expectedOperationParametersParameters)) {
+    private void validateParameters(List<Parameter> actualOperationParameters,  List<Parameter> expectedOperationParameters, String httpMethod, String path) {
+        String message = String.format("Checking parameters of '%s' operation of path '%s'", httpMethod, path);
+        if(CollectionUtils.isNotEmpty(expectedOperationParameters)) {
             softAssertions.assertThat(actualOperationParameters).as(message).isNotEmpty();
             if(CollectionUtils.isNotEmpty(actualOperationParameters)) {
-                softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParametersParameters);
-                // TODO Validate Parameter schema
-                softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
+                softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParameters);
+                //softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
+                Map<String,Parameter> expectedParametersAsMap = new HashMap<>();
+                for(Parameter expectedParameter : expectedOperationParameters){
+                    expectedParametersAsMap.put(expectedParameter.getName(), expectedParameter);
+                }
+                for(Parameter actualParameter : actualOperationParameters){
+                    String parameterName = actualParameter.getName();
+                    Parameter expectedParameter = expectedParametersAsMap.get(parameterName);
+                    validateParameter(actualParameter, expectedParameter, parameterName, httpMethod, path);
+                }
             }
         }else{
             softAssertions.assertThat(actualOperationParameters).as(message).isNullOrEmpty();
+        }
+    }
+
+    private void validateParameter(Parameter actualParameter, Parameter expectedParameter, String parameterName, String httpMethod, String path) {
+        if(expectedParameter != null) {
+            String message = String.format("Checking parameter '%s' of '%s' operation of path '%s'", parameterName, httpMethod, path);
+            softAssertions.assertThat(actualParameter).as(message).isExactlyInstanceOf(expectedParameter.getClass());
+            if (expectedParameter instanceof BodyParameter && actualParameter instanceof BodyParameter) {
+                BodyParameter actualBodyParameter = (BodyParameter) expectedParameter;
+                BodyParameter expectedBodyParameter = (BodyParameter) expectedParameter;
+                validateModel(actualBodyParameter.getSchema(), expectedBodyParameter.getSchema(), String.format("Checking model of parameter '%s' of '%s' operation of path '%s'", parameterName, httpMethod, path));
+            } else if (expectedParameter instanceof PathParameter && actualParameter instanceof PathParameter) {
+                PathParameter actualPathParameter = (PathParameter) actualParameter;
+                PathParameter expectedPathParameter = (PathParameter) expectedParameter;
+                softAssertions.assertThat(actualPathParameter.getType()).as(message).isEqualTo(expectedPathParameter.getType());
+                List<String> expectedEnums = expectedPathParameter.getEnum();
+                if (CollectionUtils.isNotEmpty(expectedEnums)) {
+                    softAssertions.assertThat(actualPathParameter.getEnum()).as(message).hasSameElementsAs(expectedEnums);
+                } else {
+                    softAssertions.assertThat(actualPathParameter.getEnum()).as(message).isNullOrEmpty();
+                }
+            } else if (expectedParameter instanceof QueryParameter && actualParameter instanceof QueryParameter) {
+                QueryParameter actualQueryParameter = (QueryParameter) actualParameter;
+                QueryParameter expectedQueryParameter = (QueryParameter) expectedParameter;
+                softAssertions.assertThat(actualQueryParameter.getType()).as(message).isEqualTo(expectedQueryParameter.getType());
+                List<String> expectedEnums = expectedQueryParameter.getEnum();
+                if (CollectionUtils.isNotEmpty(expectedEnums)) {
+                    softAssertions.assertThat(actualQueryParameter.getEnum()).as(message).hasSameElementsAs(expectedEnums);
+                } else {
+                    softAssertions.assertThat(actualQueryParameter.getEnum()).as(message).isNullOrEmpty();
+                }
+            } else if (expectedParameter instanceof HeaderParameter && actualParameter instanceof HeaderParameter) {
+                HeaderParameter actualHeaderParameter = (HeaderParameter) actualParameter;
+                HeaderParameter expectedHeaderParameter = (HeaderParameter) expectedParameter;
+                softAssertions.assertThat(actualHeaderParameter.getType()).as(message).isEqualTo(expectedHeaderParameter.getType());
+                List<String> expectedEnums = expectedHeaderParameter.getEnum();
+                if (CollectionUtils.isNotEmpty(expectedEnums)) {
+                    softAssertions.assertThat(actualHeaderParameter.getEnum()).as(message).hasSameElementsAs(expectedEnums);
+                } else {
+                    softAssertions.assertThat(actualHeaderParameter.getEnum()).as(message).isNullOrEmpty();
+                }
+            } else if (expectedParameter instanceof FormParameter && actualParameter instanceof FormParameter) {
+                FormParameter actualFormParameter = (FormParameter) actualParameter;
+                FormParameter expectedFormParameter = (FormParameter) expectedParameter;
+                softAssertions.assertThat(actualFormParameter.getType()).as(message).isEqualTo(expectedFormParameter.getType());
+                List<String> expectedEnums = expectedFormParameter.getEnum();
+                if (CollectionUtils.isNotEmpty(expectedEnums)) {
+                    softAssertions.assertThat(actualFormParameter.getEnum()).as(message).hasSameElementsAs(expectedEnums);
+                } else {
+                    softAssertions.assertThat(actualFormParameter.getEnum()).as(message).isNullOrEmpty();
+                }
+            } else if (expectedParameter instanceof CookieParameter && actualParameter instanceof CookieParameter) {
+                CookieParameter actualCookieParameter = (CookieParameter) actualParameter;
+                CookieParameter expectedCookieParameter = (CookieParameter) expectedParameter;
+                softAssertions.assertThat(actualCookieParameter.getType()).as(message).isEqualTo(expectedCookieParameter.getType());
+                List<String> expectedEnums = expectedCookieParameter.getEnum();
+                if (CollectionUtils.isNotEmpty(expectedEnums)) {
+                    softAssertions.assertThat(actualCookieParameter.getEnum()).as(message).hasSameElementsAs(expectedEnums);
+                } else {
+                    softAssertions.assertThat(actualCookieParameter.getEnum()).as(message).isNullOrEmpty();
+                }
+            } else if (expectedParameter instanceof RefParameter && actualParameter instanceof RefParameter) {
+                RefParameter expectedRefParameter = (RefParameter) expectedParameter;
+                RefParameter actualRefParameter = (RefParameter) actualParameter;
+                softAssertions.assertThat(actualRefParameter.getSimpleRef()).as(message).isEqualTo(expectedRefParameter.getSimpleRef());
+            }
         }
     }
 
@@ -219,16 +343,12 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             softAssertions.assertThat(actualResponseHeaders).as(message).isNotEmpty();
             if(MapUtils.isNotEmpty(actualResponseHeaders)){
                 softAssertions.assertThat(actualResponseHeaders.keySet()).as(message).hasSameElementsAs(expectedResponseHeaders.keySet());
-
                 for (Map.Entry<String, Property> actualResponseHeaderEntry : actualResponseHeaders.entrySet()) {
                     Property expectedResponseHeader = expectedResponseHeaders.get(actualResponseHeaderEntry.getKey());
                     Property actualResponseHeader = actualResponseHeaderEntry.getValue();
                     String responseHeaderName = actualResponseHeaderEntry.getKey();
                     validateProperty(actualResponseHeader, expectedResponseHeader, String.format("Checking response header '%s' of response '%s' of '%s' operation of path '%s'", responseHeaderName, responseName, httpMethod, path));
                 }
-
-
-                // TODO Validate Response header schema property
             }
         }else{
             softAssertions.assertThat(actualResponseHeaders).as(message).isNullOrEmpty();
