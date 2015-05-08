@@ -147,9 +147,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             softAssertions.assertThat(actualOperationParameters).as(message).isNotEmpty();
             if(CollectionUtils.isNotEmpty(actualOperationParameters)) {
                 softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParametersParameters);
-
                 softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
-
             }
         }else{
             softAssertions.assertThat(actualOperationParameters).as(message).isNullOrEmpty();

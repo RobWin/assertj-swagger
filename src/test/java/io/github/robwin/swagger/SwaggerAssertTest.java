@@ -19,7 +19,6 @@
 package io.github.robwin.swagger;
 
 import io.github.robwin.swagger.test.SwaggerAssertions;
-import org.assertj.core.api.SoftAssertionError;
 import org.junit.Test;
 
 public class SwaggerAssertTest {
@@ -31,7 +30,7 @@ public class SwaggerAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
     }
 
-    @Test(expected = SoftAssertionError.class)
+    @Test
     public void shouldFindDifferencesInImplementation(){
         String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath();
         String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
