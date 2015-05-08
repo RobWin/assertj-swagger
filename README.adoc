@@ -89,7 +89,7 @@ but could not find the following elements:
 
 === Validate Springfox Swagger JSON output
 
-If you are using https://github.com/springfox/springfox[springfox], you can validate the Swagger JSON output against your design-first Swagger specification.
+If you are using the https://github.com/spring-projects/spring-framework[spring-framework] and https://github.com/springfox/springfox[springfox], you can validate the Swagger JSON output against your design-first Swagger specification.
 That way you can make sure that the implementation is in compliance with the design specification. 
 
 [source, java]
