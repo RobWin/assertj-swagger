@@ -6,7 +6,7 @@ ext {
     buildTime = new SimpleDateFormat('HH:mm:ss.SSSZ').format(buildTimeAndDate)
 }
 
-def projectArtifactId = 'swagger-test'
+def projectArtifactId = 'assertj-swagger'
 
 jar {
     manifest {
@@ -37,10 +37,10 @@ bintray {
     publications = ['mavenJava']
     pkg {
         repo = 'maven'
-        name = 'swagger-test'
-        websiteUrl = 'https://github.com/RobWin/swagger-test'
-        issueTrackerUrl = 'https://github.com/RobWin/swagger-test/issues'
-        vcsUrl = 'https://github.com/RobWin/swagger-test.git'
+        name = 'assertj-swagger'
+        websiteUrl = 'https://github.com/RobWin/assertj-swagger'
+        issueTrackerUrl = 'https://github.com/RobWin/assertj-swagger/issues'
+        vcsUrl = 'https://github.com/RobWin/assertj-swagger.git'
         desc = 'A Swagger test library.'
         licenses = ['Apache-2.0']
         version {
@@ -74,17 +74,17 @@ publishing {
                     it.scope*.value = 'compile'
                 }
 
-                root.appendNode('name', 'swagger-test')
+                root.appendNode('name', 'assertj-swagger')
                 root.appendNode('packaging', 'jar')
-                root.appendNode('url', 'https://github.com/RobWin/swagger-test')
+                root.appendNode('url', 'https://github.com/RobWin/assertj-swagger')
                 root.appendNode('description', 'A Swagger to Markup (AsciiDoc and Markdown) converter.')
 
                 def license = root.appendNode('licenses').appendNode('license')
                 license.appendNode('name', 'Apache-2.0')
-                license.appendNode('url', 'https://github.com/RobWin/swagger-test/blob/master/LICENSE.txt')
+                license.appendNode('url', 'https://github.com/RobWin/assertj-swagger/blob/master/LICENSE.txt')
                 license.appendNode('distribution', 'repo')
 
-                root.appendNode('scm').appendNode('url', 'https://github.com/RobWin/swagger-test.git')
+                root.appendNode('scm').appendNode('url', 'https://github.com/RobWin/assertj-swagger.git')
 
                 def developers = root.appendNode('developers')
                 devs.each {

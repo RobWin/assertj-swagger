@@ -30,7 +30,7 @@ public class SwaggerAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
     }
 
-    @Test
+    @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInImplementation(){
         String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath();
         String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
