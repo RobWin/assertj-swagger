@@ -18,17 +18,15 @@
  */
 package io.github.robwin.swagger.test;
 
-import com.wordnik.swagger.models.Model;
-import com.wordnik.swagger.models.Operation;
-import com.wordnik.swagger.models.Path;
-import com.wordnik.swagger.models.Swagger;
+import com.wordnik.swagger.models.*;
+import com.wordnik.swagger.models.parameters.Parameter;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
 
+import java.util.List;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Assertion methods for {@code Swagger}.
@@ -57,56 +55,108 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      */
     public SwaggerAssert isEqualTo(Swagger expected) {
         // Check Paths
-        Map<String, Path> expectedPaths = expected.getPaths();
-        if(MapUtils.isNotEmpty(expectedPaths)) {
-            Map<String, Path> actualPaths = actual.getPaths();
-            assertThat(actualPaths).isNotEmpty();
+        validatePaths(actual.getPaths(), expected.getPaths());
 
-            softAssertions.assertThat(actualPaths.keySet()).as("Checking Paths").hasSameElementsAs(expected.getPaths().keySet());
+        // Check Definitions
+        validateDefinitions(actual.getDefinitions(), expected.getDefinitions());
 
-            for (Map.Entry<String, Path> actualPathEntry : actualPaths.entrySet()) {
-                Path expectedPath = expectedPaths.get(actualPathEntry.getKey());
-                if (expectedPath != null) {
-                    Path actualPath = actualPathEntry.getValue();
-                    softAssertions.assertThat(actualPath.getOperations()).as("Checking number of operations of path '%s'", actualPathEntry.getKey()).hasSameSizeAs(actualPath.getOperations());
-                    validateOperation(actualPath.getGet(), expectedPath.getGet(), String.format("Checking GET operation of path '%s'", actualPathEntry.getKey()));
-                    validateOperation(actualPath.getDelete(), expectedPath.getDelete(), String.format("Checking DELETE operation of path '%s'", actualPathEntry.getKey()));
-                    validateOperation(actualPath.getPost(), expectedPath.getPost(), String.format("Checking POST operation of path '%s'", actualPathEntry.getKey()));
-                    validateOperation(actualPath.getPut(), expectedPath.getPut(), String.format("Checking PUT operation of path '%s'", actualPathEntry.getKey()));
-                    validateOperation(actualPath.getPatch(), expectedPath.getPatch(), String.format("Checking PATCH operation of path '%s'", actualPathEntry.getKey()));
-                    validateOperation(actualPath.getOptions(), expectedPath.getOptions(), String.format("Checking OPTIONS operation of path '%s'", actualPathEntry.getKey()));
-                }
-            }
-        }
-
-
-        Map<String, Model> expectedDefinitions = expected.getDefinitions();
-        if(MapUtils.isNotEmpty(expectedDefinitions)) {
-            Map<String, Model> actualDefinitions = actual.getDefinitions();
-            assertThat(actualDefinitions).isNotEmpty();
-
-            // Check Definitions
-            softAssertions.assertThat(actualDefinitions.keySet()).as("Checking Definitions").hasSameElementsAs(expectedDefinitions.keySet());
-        }
         softAssertions.assertAll();
-
         return myself;
     }
 
-    private void validateOperation(Operation actualOperation, Operation expectedOperation, String message){
+    private void validateDefinitions(Map<String, Model> actualDefinitions, Map<String, Model> expectedDefinitions) {
+        if(MapUtils.isNotEmpty(expectedDefinitions)) {
+            softAssertions.assertThat(actualDefinitions).as("Checking Definitions").isNotEmpty();
+            if(MapUtils.isNotEmpty(actualDefinitions)){
+                softAssertions.assertThat(actualDefinitions.keySet()).as("Checking Definitions").hasSameElementsAs(expectedDefinitions.keySet());
+            }
+        }else{
+            softAssertions.assertThat(actualDefinitions).as("Checking Definitions").isNullOrEmpty();
+        }
+    }
+
+    private void validatePaths(Map<String, Path> actualPaths, Map<String, Path> expectedPaths) {
+        if(MapUtils.isNotEmpty(expectedPaths)) {
+            softAssertions.assertThat(actualPaths).as("Checking Paths").isNotEmpty();
+            softAssertions.assertThat(actualPaths.keySet()).as("Checking Paths").hasSameElementsAs(expectedPaths.keySet());
+            for (Map.Entry<String, Path> actualPathEntry : actualPaths.entrySet()) {
+                Path expectedPath = expectedPaths.get(actualPathEntry.getKey());
+                Path actualPath = actualPathEntry.getValue();
+                String pathName = actualPathEntry.getKey();
+                validatePath(pathName, actualPath, expectedPath);
+            }
+        }else{
+            softAssertions.assertThat(actualPaths).as("Checking Paths").isNullOrEmpty();
+        }
+    }
+
+    private void validatePath(String pathName, Path actualPath, Path expectedPath) {
+        if (expectedPath != null) {
+            softAssertions.assertThat(actualPath.getOperations()).as("Checking number of operations of path '%s'", pathName).hasSameSizeAs(actualPath.getOperations());
+            validateOperation(actualPath.getGet(), expectedPath.getGet(), pathName, "GET");
+            validateOperation(actualPath.getDelete(), expectedPath.getDelete(), pathName, "DELETE");
+            validateOperation(actualPath.getPost(), expectedPath.getPost(), pathName, "POST");
+            validateOperation(actualPath.getPut(), expectedPath.getPut(), pathName, "PUT");
+            validateOperation(actualPath.getPatch(), expectedPath.getPatch(), pathName, "PATCH");
+            validateOperation(actualPath.getOptions(), expectedPath.getOptions(), pathName, "OPTIONS");
+        }
+    }
+
+    private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod){
+        String message = String.format("Checking '%s' operation of path '%s'", httpMethod, path);
         if(expectedOperation != null){
-
-            // TODO CHECK EMPTY
-
-            softAssertions.assertThat(actualOperation.getConsumes()).as(message).isEqualTo(expectedOperation.getConsumes());
-
-
-            softAssertions.assertThat(actualOperation.getProduces()).as(message).isEqualTo(expectedOperation.getProduces());
-
-
-            // TODO VALIDATE PARAMETERS AND RESPONSES
+            softAssertions.assertThat(actualOperation).as(message).isNotNull();
+            if(actualOperation != null) {
+                //Validate consumes
+                validateList(actualOperation.getConsumes(), expectedOperation.getConsumes(),  String.format("Checking '%s' of '%s' operation of path '%s'", "consumes", httpMethod, path));
+                //Validate produces
+                validateList(actualOperation.getProduces(), expectedOperation.getProduces(),  String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
+                //Validate parameters
+                validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(),  String.format("Checking '%s' of '%s' operation of path '%s'", "parameters", httpMethod, path));
+                //Validate responses
+                validateResponses(actualOperation.getResponses(), expectedOperation.getResponses(),  String.format("Checking '%s' of '%s' operation of path '%s'", "responses", httpMethod, path));
+            }
         }else{
             softAssertions.assertThat(actualOperation).as(message).isNull();
+        }
+    }
+
+    private void validateParameters(List<Parameter> actualOperationParameters,  List<Parameter> expectedOperationParametersParameters, String message) {
+        if(CollectionUtils.isNotEmpty(expectedOperationParametersParameters)) {
+            softAssertions.assertThat(actualOperationParameters).as(message).isNotEmpty();
+            if(CollectionUtils.isNotEmpty(actualOperationParameters)) {
+                softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParametersParameters);
+
+                softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
+
+            }
+        }else{
+            softAssertions.assertThat(actualOperationParameters).as(message).isNullOrEmpty();
+        }
+    }
+
+    private void validateResponses(Map<String, Response> actualOperationResponses, Map<String, Response> expectedOperationResponses, String message) {
+        if(MapUtils.isNotEmpty(expectedOperationResponses)) {
+            softAssertions.assertThat(actualOperationResponses).as(message).isNotEmpty();
+            if(MapUtils.isNotEmpty(actualOperationResponses)) {
+                softAssertions.assertThat(actualOperationResponses).as(message).hasSameSizeAs(expectedOperationResponses);
+
+
+            }
+        }else{
+            softAssertions.assertThat(actualOperationResponses).as(message).isNullOrEmpty();
+        }
+
+    }
+
+    private void validateList(List<String> actualList, List<String> expectedList, String message){
+        if(CollectionUtils.isNotEmpty(expectedList)) {
+            softAssertions.assertThat(actualList).as(message).isNotEmpty();
+            if(CollectionUtils.isNotEmpty(actualList)) {
+                softAssertions.assertThat(actualList).as(message).hasSameElementsAs(expectedList);
+            }
+        }else{
+            softAssertions.assertThat(actualList).as(message).isNullOrEmpty();
         }
     }
 }

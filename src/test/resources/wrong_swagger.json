@@ -165,8 +165,7 @@
                 "description": "Muliple tags can be provided with comma seperated strings. Use tag1, tag2, tag3 for testing.",
                 "operationId": "findPetsByTags",
                 "produces": [
-                    "application/json",
-                    "application/xml"
+                    "application/json"
                 ],
                 "parameters": [
                     {
@@ -310,7 +309,8 @@
                 "description": "",
                 "operationId": "updatePetWithForm",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "application/x-www-form-urlencoded",
+                    "text/csv"
                 ],
                 "produces": [
                     "application/json",
@@ -609,16 +609,23 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "username",
-                        "description": "The user name for login",
-                        "required": false,
+                        "name": "firstname",
+                        "description": "The first name for login",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "laster",
+                        "description": "The last name for login",
+                        "required": true,
                         "type": "string"
                     },
                     {
                         "in": "query",
                         "name": "password",
                         "description": "The password for login in clear text",
-                        "required": false,
+                        "required": true,
                         "type": "string"
                     }
                 ],
