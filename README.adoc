@@ -65,26 +65,45 @@ public void validateThatImplementationFitsDesignSpecification(){
 [source]
 ----
 The following 4 assertions failed:
-1) [Checking Paths]
+1) [Checking Paths] 
 Expecting:
-  <["/pets", "/pets/findByError", "/pets/findByTags", "/pets/notDefiniedInSwaggerSpec", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
+  <["/api/pet", "/api/pet/findByStatus", "/api/pet/findByTags", "/api/pet/{petId}", "/api/store/order", "/api/store/order/{orderId}", "/api/user", "/api/user/createWithArray", "/api/user/createWithList", "/api/user/login", "/api/user/logout", "/api/user/{username}"]>
 to contain only:
   <["/pets", "/pets/findByStatus", "/pets/findByTags", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
 elements not found:
-  <["/pets/findByStatus"]>
+  <["/pets/findByTags", "/users/logout", "/users", "/stores/order", "/users/createWithArray", "/pets", "/users/createWithList", "/pets/findByStatus", "/pets/{petId}", "/users/{username}", "/stores/order/{orderId}", "/users/login"]>
 and elements not expected:
-  <["/pets/findByError", "/pets/notDefiniedInSwaggerSpec"]>
+  <["/api/store/order", "/api/user", "/api/user/createWithList", "/api/pet", "/api/pet/findByTags", "/api/user/createWithArray", "/api/user/login", "/api/pet/{petId}", "/api/store/order/{orderId}", "/api/user/{username}", "/api/pet/findByStatus", "/api/user/logout"]>
 
-2) [Checking 'DELETE' operation of path '/pets'] expected:<null> but was:<com.wordnik.swagger.models.Operation@515c6049>
-3) [Checking 'POST' operation of path '/pets']
-Expecting actual not to be null
-4) [Checking 'produces' of 'GET' operation of path '/pets/findByTags']
+2) [Checking properties of definition 'Order'] 
 Expecting:
-  <["application/json"]>
+  <["complete", "id", "identifier", "petId", "quantity", "shipDate", "status"]>
 to contain only:
-  <["application/json", "application/xml"]>
-but could not find the following elements:
-  <["application/xml"]>
+  <["id", "petId", "quantity", "shipDate", "status", "complete"]>
+elements not found:
+  <[]>
+and elements not expected:
+  <["identifier"]>
+
+3) [Checking properties of definition 'User'] 
+Expecting:
+  <["email", "firstName", "id", "identifier", "lastName", "password", "phone", "userStatus", "username"]>
+to contain only:
+  <["id", "username", "firstName", "lastName", "email", "password", "phone", "userStatus"]>
+elements not found:
+  <[]>
+and elements not expected:
+  <["identifier"]>
+
+4) [Checking properties of definition 'Pet'] 
+Expecting:
+  <["category", "id", "identifier", "name", "photoUrls", "status", "tags"]>
+to contain only:
+  <["id", "category", "name", "photoUrls", "tags", "status"]>
+elements not found:
+  <[]>
+and elements not expected:
+  <["identifier"]>
 ----
 
 === Validate Springfox Swagger JSON output
