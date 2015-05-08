@@ -14,7 +14,7 @@ assertj-swagger compares Swagger objects like Paths, Parameters and Definitions.
 == Usage guide
 
 === Adding assertj-swagger to your project
-The project is not yet published in JCenter and Maven Central.
+The project is published in JCenter and Maven Central.
 
 ==== Maven
 
