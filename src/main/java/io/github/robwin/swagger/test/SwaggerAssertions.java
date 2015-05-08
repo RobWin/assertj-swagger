@@ -19,6 +19,7 @@
 package io.github.robwin.swagger.test;
 
 import com.wordnik.swagger.models.Swagger;
+import io.swagger.parser.SwaggerParser;
 
 /**
  * Entry point for assertion methods for different data types. Each method in this class is a static factory for the
@@ -36,5 +37,16 @@ public class SwaggerAssertions {
      */
     public static SwaggerAssert assertThat(Swagger actual) {
         return new SwaggerAssert(actual);
+    }
+
+
+    /**
+     * Creates a new instance of <code>{@link SwaggerAssert}</code>.
+     *
+     * @param actualLocation the location the actual value.
+     * @return the created assertion object.
+     */
+    public static SwaggerAssert assertThat(String actualLocation) {
+        return new SwaggerAssert(new SwaggerParser().read(actualLocation));
     }
 }

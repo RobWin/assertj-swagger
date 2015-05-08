@@ -20,6 +20,7 @@ package io.github.robwin.swagger.test;
 
 import com.wordnik.swagger.models.*;
 import com.wordnik.swagger.models.parameters.Parameter;
+import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.assertj.core.api.AbstractAssert;
@@ -54,6 +55,26 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert isEqualTo(Swagger expected) {
+        validateSwagger(expected);
+
+        return myself;
+    }
+
+
+    /**
+     * Verifies that the actual value is equal to the given one.
+     *
+     * @param expectedLocation the location of the given value to compare the actual value to.
+     * @return {@code this} assertion object.
+     * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
+     */
+    public SwaggerAssert isEqualTo(String expectedLocation) {
+        // Check Paths
+        validateSwagger(new SwaggerParser().read(expectedLocation));
+        return myself;
+    }
+
+    private void validateSwagger(Swagger expected) {
         // Check Paths
         validatePaths(actual.getPaths(), expected.getPaths());
 
@@ -61,8 +82,8 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         validateDefinitions(actual.getDefinitions(), expected.getDefinitions());
 
         softAssertions.assertAll();
-        return myself;
     }
+
 
     private void validateDefinitions(Map<String, Model> actualDefinitions, Map<String, Model> expectedDefinitions) {
         if(MapUtils.isNotEmpty(expectedDefinitions)) {
