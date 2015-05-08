@@ -65,7 +65,7 @@ public void validateThatImplementationFitsDesignSpecification(){
 
 [source]
 ----
-The following 8 assertions failed:
+The following 4 assertions failed:
 1) [Checking Paths]
 Expecting:
   <["/pets", "/pets/findByError", "/pets/findByTags", "/pets/notDefiniedInSwaggerSpec", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
