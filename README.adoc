@@ -8,8 +8,10 @@ image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/RobWin/as
 
 == Overview
 
+assertj-swagger is a assertj library which compares a design-first Swagger YAML with an implementation-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox]).
+assertj-swagger allows to validate if the implementation fits the design specification.
 
-== Usage
+== Usage guide
 
 === Adding assertj-swagger to your project
 The project is not yet published in JCenter and Maven Central.
@@ -47,9 +49,44 @@ repositories {
 compile "io.github.robwin:assertj-swagger:0.1.0"
 ----
 
-=== Using assertj-swagger
+=== Using assertj-swagger in a unit test
 
+[source, java]
+----
+@Test
+public void shouldFindDifferencesInImplementation(){
+    String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath();
+    String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
+    SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
+}
+----
 
+==== Example output
+
+[source]
+----
+The following 8 assertions failed:
+1) [Checking Paths]
+Expecting:
+  <["/pets", "/pets/findByError", "/pets/findByTags", "/pets/notDefiniedInSwaggerSpec", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
+to contain only:
+  <["/pets", "/pets/findByStatus", "/pets/findByTags", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
+elements not found:
+  <["/pets/findByStatus"]>
+and elements not expected:
+  <["/pets/findByError", "/pets/notDefiniedInSwaggerSpec"]>
+
+2) [Checking 'DELETE' operation of path '/pets'] expected:<null> but was:<com.wordnik.swagger.models.Operation@515c6049>
+3) [Checking 'POST' operation of path '/pets']
+Expecting actual not to be null
+4) [Checking 'produces' of 'GET' operation of path '/pets/findByTags']
+Expecting:
+  <["application/json"]>
+to contain only:
+  <["application/json", "application/xml"]>
+but could not find the following elements:
+  <["application/xml"]>
+----
 
 == License
 
