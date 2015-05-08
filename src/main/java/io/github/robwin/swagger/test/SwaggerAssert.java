@@ -20,6 +20,7 @@ package io.github.robwin.swagger.test;
 
 import com.wordnik.swagger.models.*;
 import com.wordnik.swagger.models.parameters.Parameter;
+import com.wordnik.swagger.models.properties.Property;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -56,10 +57,8 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      */
     public SwaggerAssert isEqualTo(Swagger expected) {
         validateSwagger(expected);
-
         return myself;
     }
-
 
     /**
      * Verifies that the actual value is equal to the given one.
@@ -69,7 +68,6 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert isEqualTo(String expectedLocation) {
-        // Check Paths
         validateSwagger(new SwaggerParser().read(expectedLocation));
         return myself;
     }
@@ -84,30 +82,37 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         softAssertions.assertAll();
     }
 
+    private void validatePaths(Map<String, Path> actualPaths, Map<String, Path> expectedPaths) {
+        if(MapUtils.isNotEmpty(expectedPaths)) {
+            softAssertions.assertThat(actualPaths).as("Checking Paths").isNotEmpty();
+            if(MapUtils.isNotEmpty(actualPaths)){
+                softAssertions.assertThat(actualPaths.keySet()).as("Checking Paths").hasSameElementsAs(expectedPaths.keySet());
+                for (Map.Entry<String, Path> actualPathEntry : actualPaths.entrySet()) {
+                    Path expectedPath = expectedPaths.get(actualPathEntry.getKey());
+                    Path actualPath = actualPathEntry.getValue();
+                    String pathName = actualPathEntry.getKey();
+                    validatePath(pathName, actualPath, expectedPath);
+                }
+            }
+        }else{
+            softAssertions.assertThat(actualPaths).as("Checking Paths").isNullOrEmpty();
+        }
+    }
 
     private void validateDefinitions(Map<String, Model> actualDefinitions, Map<String, Model> expectedDefinitions) {
         if(MapUtils.isNotEmpty(expectedDefinitions)) {
             softAssertions.assertThat(actualDefinitions).as("Checking Definitions").isNotEmpty();
             if(MapUtils.isNotEmpty(actualDefinitions)){
                 softAssertions.assertThat(actualDefinitions.keySet()).as("Checking Definitions").hasSameElementsAs(expectedDefinitions.keySet());
+                for (Map.Entry<String, Model> actualDefinitionEntry : actualDefinitions.entrySet()) {
+                    Model expectedDefinition = expectedDefinitions.get(actualDefinitionEntry.getKey());
+                    Model actualDefinition = actualDefinitionEntry.getValue();
+                    String definitionName = actualDefinitionEntry.getKey();
+                    validateDefinition(definitionName, actualDefinition, expectedDefinition);
+                }
             }
         }else{
             softAssertions.assertThat(actualDefinitions).as("Checking Definitions").isNullOrEmpty();
-        }
-    }
-
-    private void validatePaths(Map<String, Path> actualPaths, Map<String, Path> expectedPaths) {
-        if(MapUtils.isNotEmpty(expectedPaths)) {
-            softAssertions.assertThat(actualPaths).as("Checking Paths").isNotEmpty();
-            softAssertions.assertThat(actualPaths.keySet()).as("Checking Paths").hasSameElementsAs(expectedPaths.keySet());
-            for (Map.Entry<String, Path> actualPathEntry : actualPaths.entrySet()) {
-                Path expectedPath = expectedPaths.get(actualPathEntry.getKey());
-                Path actualPath = actualPathEntry.getValue();
-                String pathName = actualPathEntry.getKey();
-                validatePath(pathName, actualPath, expectedPath);
-            }
-        }else{
-            softAssertions.assertThat(actualPaths).as("Checking Paths").isNullOrEmpty();
         }
     }
 
@@ -123,6 +128,34 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         }
     }
 
+    private void validateDefinition(String definitionName, Model actualDefinition, Model expectedDefinition) {
+        if (expectedDefinition != null) {
+            // TODO Validate Definition
+            validateDefinitionProperties(actualDefinition.getProperties(), expectedDefinition.getProperties(), definitionName);
+        }
+    }
+
+    private void validateDefinitionProperties(Map<String, Property> actualDefinitionProperties, Map<String, Property> expectedDefinitionProperties, String definitionName) {
+        if(MapUtils.isNotEmpty(expectedDefinitionProperties)) {
+            softAssertions.assertThat(actualDefinitionProperties).as("Checking properties of definition '%s", definitionName).isNotEmpty();
+            if(MapUtils.isNotEmpty(actualDefinitionProperties)){
+                softAssertions.assertThat(actualDefinitionProperties.keySet()).as("Checking number of properties of definition '%s'", definitionName).hasSameElementsAs(expectedDefinitionProperties.keySet());
+                for (Map.Entry<String, Property> actualDefinitionPropertyEntry : actualDefinitionProperties.entrySet()) {
+                    Property expectedDefinitionProperty = expectedDefinitionProperties.get(actualDefinitionPropertyEntry.getKey());
+                    Property actualDefinitionProperty = actualDefinitionPropertyEntry.getValue();
+                    String propertyName = actualDefinitionPropertyEntry.getKey();
+                    validateProperty(actualDefinitionProperty, expectedDefinitionProperty, String.format("Checking property '%s' of definition '%s'", propertyName, definitionName));
+                }
+            }
+        }else{
+            softAssertions.assertThat(actualDefinitionProperties).as("Checking properties of definition '%s", definitionName).isNullOrEmpty();
+        }
+    }
+
+    private void validateProperty(Property actualProperty, Property expectedProperty, String message) {
+        // TODO Validate Property schema
+    }
+
     private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod){
         String message = String.format("Checking '%s' operation of path '%s'", httpMethod, path);
         if(expectedOperation != null){
@@ -135,7 +168,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
                 //Validate parameters
                 validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(),  String.format("Checking '%s' of '%s' operation of path '%s'", "parameters", httpMethod, path));
                 //Validate responses
-                validateResponses(actualOperation.getResponses(), expectedOperation.getResponses(),  String.format("Checking '%s' of '%s' operation of path '%s'", "responses", httpMethod, path));
+                validateResponses(actualOperation.getResponses(), expectedOperation.getResponses(), httpMethod, path);
             }
         }else{
             softAssertions.assertThat(actualOperation).as(message).isNull();
@@ -147,6 +180,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             softAssertions.assertThat(actualOperationParameters).as(message).isNotEmpty();
             if(CollectionUtils.isNotEmpty(actualOperationParameters)) {
                 softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParametersParameters);
+                // TODO Validate Parameter schema
                 softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
             }
         }else{
@@ -154,18 +188,51 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         }
     }
 
-    private void validateResponses(Map<String, Response> actualOperationResponses, Map<String, Response> expectedOperationResponses, String message) {
+    private void validateResponses(Map<String, Response> actualOperationResponses, Map<String, Response> expectedOperationResponses, String httpMethod, String path) {
+        String message = String.format("Checking responses of '%s' operation of path '%s'", httpMethod, path);
         if(MapUtils.isNotEmpty(expectedOperationResponses)) {
             softAssertions.assertThat(actualOperationResponses).as(message).isNotEmpty();
             if(MapUtils.isNotEmpty(actualOperationResponses)) {
-                softAssertions.assertThat(actualOperationResponses).as(message).hasSameSizeAs(expectedOperationResponses);
-
-
+                softAssertions.assertThat(actualOperationResponses.keySet()).as(message).hasSameElementsAs(expectedOperationResponses.keySet());
+                for (Map.Entry<String, Response> actualResponseEntry : actualOperationResponses.entrySet()) {
+                    Response expectedResponse = expectedOperationResponses.get(actualResponseEntry.getKey());
+                    Response actualResponse = actualResponseEntry.getValue();
+                    String responseName = actualResponseEntry.getKey();
+                    validateResponse( actualResponse, expectedResponse, responseName, httpMethod, path);
+                }
             }
         }else{
             softAssertions.assertThat(actualOperationResponses).as(message).isNullOrEmpty();
         }
+    }
 
+    private void validateResponse(Response actualResponse, Response expectedResponse, String responseName, String httpMethod, String path) {
+        if (expectedResponse != null) {
+            validateProperty(actualResponse.getSchema(), expectedResponse.getSchema(), String.format("Checking response schema of response '%s' of '%s' operation of path '%s'", responseName, httpMethod, path));
+            validateResponseHeaders(actualResponse.getHeaders(), expectedResponse.getHeaders(), responseName, httpMethod, path);
+        }
+    }
+
+    private void validateResponseHeaders(Map<String, Property> actualResponseHeaders, Map<String, Property> expectedResponseHeaders, String responseName, String httpMethod, String path) {
+        String message = String.format("Checking response headers of response '%s' of '%s' operation of path '%s'", responseName, httpMethod, path);
+        if(MapUtils.isNotEmpty(expectedResponseHeaders)) {
+            softAssertions.assertThat(actualResponseHeaders).as(message).isNotEmpty();
+            if(MapUtils.isNotEmpty(actualResponseHeaders)){
+                softAssertions.assertThat(actualResponseHeaders.keySet()).as(message).hasSameElementsAs(expectedResponseHeaders.keySet());
+
+                for (Map.Entry<String, Property> actualResponseHeaderEntry : actualResponseHeaders.entrySet()) {
+                    Property expectedResponseHeader = expectedResponseHeaders.get(actualResponseHeaderEntry.getKey());
+                    Property actualResponseHeader = actualResponseHeaderEntry.getValue();
+                    String responseHeaderName = actualResponseHeaderEntry.getKey();
+                    validateProperty(actualResponseHeader, expectedResponseHeader, String.format("Checking response header '%s' of response '%s' of '%s' operation of path '%s'", responseHeaderName, responseName, httpMethod, path));
+                }
+
+
+                // TODO Validate Response header schema property
+            }
+        }else{
+            softAssertions.assertThat(actualResponseHeaders).as(message).isNullOrEmpty();
+        }
     }
 
     private void validateList(List<String> actualList, List<String> expectedList, String message){
