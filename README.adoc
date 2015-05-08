@@ -8,8 +8,8 @@ image:https://badges.gitter.im/Join%20Chat.svg[link="https://gitter.im/RobWin/as
 
 == Overview
 
-assertj-swagger is a https://github.com/joel-costigliola/assertj-core[assertj] library which compares a design-first Swagger YAML with an implementation-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox]).
-assertj-swagger allows to validate if the implementation fits the design specification.
+assertj-swagger is a https://github.com/joel-costigliola/assertj-core[assertj] library which compares a design-first https://github.com/swagger-api/swagger-spec[Swagger] YAML with an implementation-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox]).
+assertj-swagger allows to validate if the implementation fits the design specification. The library supports Swagger Spec v2.
 
 == Usage guide
 
