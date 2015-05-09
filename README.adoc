@@ -55,7 +55,8 @@ compile "io.github.robwin:assertj-swagger:0.1.0"
 @Test
 public void validateThatImplementationFitsDesignSpecification(){
     String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
-    SwaggerAssertions.assertThat("http://petstore.swagger.io/v2/swagger.json").isEqualTo(designFirstSwagger);
+    SwaggerAssertions.assertThat("http://petstore.swagger.io/v2/swagger.json")
+        .isEqualTo(designFirstSwagger);
 }
 ----
 
