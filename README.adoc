@@ -48,7 +48,7 @@ repositories {
 compile "io.github.robwin:assertj-swagger:0.1.0"
 ----
 
-=== Using assertj-swagger in an integratest test
+=== Using assertj-swagger in an integration test
 
 Using assertj-swagger is simple. For example, if you are using https://github.com/spring-projects/spring-boot[Spring Boot] and https://github.com/springfox/springfox[springfox], you can validate your Swagger JSON in an integration test.
 
