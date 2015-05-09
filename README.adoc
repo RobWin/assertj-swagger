@@ -122,7 +122,7 @@ That way you can make sure that the implementation is in compliance with the des
 [source, java]
 ----
 @Test
-public void createAndValidateSpringfoxSwaggerJson() throws Exception {
+public void validateThatImplementationFitsDesignSpecification() throws Exception {
     String designFirstSwaggerLocation = Swagger2MarkupTest.class.getResource("/swagger.yaml").getPath();
 
     MvcResult mvcResult = this.mockMvc.perform(get("/v2/api-docs")
