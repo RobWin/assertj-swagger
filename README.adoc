@@ -48,15 +48,23 @@ repositories {
 compile "io.github.robwin:assertj-swagger:0.1.0"
 ----
 
-=== Using assertj-swagger in a unit test
+=== Using assertj-swagger in an integratest test
+
+Using assertj-swagger is simple. For example,if you are using https://github.com/spring-projects/spring-boot[Spring Boot] and https://github.com/springfox/springfox[springfox], you can validate your Swagger JSON in an integration test.
 
 [source, java]
 ----
-@Test
-public void validateThatImplementationFitsDesignSpecification(){
-    String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
-    SwaggerAssertions.assertThat("http://petstore.swagger.io/v2/swagger.json")
-        .isEqualTo(designFirstSwagger);
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = Application.class)
+@IntegrationTest
+@WebAppConfiguration
+public class AssertjSwaggerTest {
+    @Test
+    public void validateThatImplementationFitsDesignSpecification(){
+        String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
+        SwaggerAssertions.assertThat("http://localhost:8080/v2/api-docs")
+            .isEqualTo(designFirstSwagger);
+    }
 }
 ----
 
@@ -106,9 +114,9 @@ and elements not expected:
   <["identifier"]>
 ----
 
-=== Validate Springfox Swagger JSON output
+=== Using assertj-swagger in an unit test
 
-If you are using the https://github.com/spring-projects/spring-framework[spring-framework] and https://github.com/springfox/springfox[springfox], you can validate the Swagger JSON output against your contract-first Swagger specification.
+If you are using the https://github.com/spring-projects/spring-framework[spring-framework] and https://github.com/springfox/springfox[springfox], Spring's MVC Test framework can also be used to validate the Swagger JSON output against your contract-first Swagger specification.
 That way you can make sure that the implementation is in compliance with the design specification. 
 
 [source, java]
@@ -117,10 +125,8 @@ That way you can make sure that the implementation is in compliance with the des
 public void createAndValidateSpringfoxSwaggerJson() throws Exception {
     String designFirstSwaggerLocation = Swagger2MarkupTest.class.getResource("/swagger.yaml").getPath();
 
-    String outputDir = System.getProperty("io.springfox.staticdocs.outputDir");
     MvcResult mvcResult = this.mockMvc.perform(get("/v2/api-docs")
             .accept(MediaType.APPLICATION_JSON))
-            .andDo(SwaggerResultHandler.outputDirectory(outputDir).build())
             .andExpect(status().isOk())
             .andReturn();
 
