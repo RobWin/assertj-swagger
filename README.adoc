@@ -54,9 +54,8 @@ compile "io.github.robwin:assertj-swagger:0.1.0"
 ----
 @Test
 public void validateThatImplementationFitsDesignSpecification(){
-    String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath();
-    String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
-    SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
+    String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
+    SwaggerAssertions.assertThat("http://petstore.swagger.io/v2/swagger.json").isEqualTo(designFirstSwagger);
 }
 ----
 
