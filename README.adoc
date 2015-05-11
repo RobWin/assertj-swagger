@@ -131,7 +131,7 @@ public void validateThatImplementationFitsDesignSpecification() throws Exception
             .andReturn();
 
     String springfoxSwaggerJson = mvcResult.getResponse().getContentAsString();
-    SwaggerAssertions.assertThat(springfoxSwaggerJson).isEqualTo(designFirstSwaggerLocation);
+    SwaggerAssertions.assertThat(Swagger20Parser.parse(springfoxSwaggerJson)).isEqualTo(designFirstSwaggerLocation);
 }
 ----
 
