@@ -20,6 +20,7 @@ package io.github.robwin.swagger.test;
 
 import com.wordnik.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
+import org.apache.commons.lang3.Validate;
 
 /**
  * Entry point for assertion methods for different data types. Each method in this class is a static factory for the
@@ -32,10 +33,11 @@ public class SwaggerAssertions {
     /**
      * Creates a new instance of <code>{@link SwaggerAssert}</code>.
      *
-     * @param actual the the actual value.
+     * @param actual the the actual Swagger value.
      * @return the created assertion object.
      */
     public static SwaggerAssert assertThat(Swagger actual) {
+        Validate.notNull(actual, "actual must not be null!");
         return new SwaggerAssert(actual);
     }
 
@@ -43,10 +45,11 @@ public class SwaggerAssertions {
     /**
      * Creates a new instance of <code>{@link SwaggerAssert}</code>.
      *
-     * @param actualLocation the location the actual value.
+     * @param actualLocation the location the actual Swagger value.
      * @return the created assertion object.
      */
     public static SwaggerAssert assertThat(String actualLocation) {
+        Validate.notNull(actualLocation, "actualLocation must not be null!");
         return new SwaggerAssert(new SwaggerParser().read(actualLocation));
     }
 }
