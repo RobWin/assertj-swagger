@@ -2,3 +2,6 @@
 
 == Version 0.1.0
 * Initial version
+
+=== Version 0.1.1
+* Added a Swagger 2.0 parser which parses a Swagger String into a Swagger model
