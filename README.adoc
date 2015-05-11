@@ -7,7 +7,7 @@ image:https://travis-ci.org/RobWin/assertj-swagger.svg["Build Status", link="htt
 
 == Overview
 
-assertj-swagger is a https://github.com/joel-costigliola/assertj-core[assertj] library which compares a design-first https://github.com/swagger-api/swagger-spec[Swagger] YAML with an implementation-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox]). assertj-swagger allows to validate that the implementation fits the design specification. The library supports Swagger Spec v2.
+assertj-swagger is a https://github.com/joel-costigliola/assertj-core[assertj] library which compares a contract-first https://github.com/swagger-api/swagger-spec[Swagger] YAML/JSON file with a code-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox] or https://github.com/swagger-api/swagger-core/wiki/Java-JAXRS-Quickstart[JAX-RS Swagger]). assertj-swagger allows to validate that the API implementation is in compliance with the contract specification. The library supports the Swagger 1.2 and 2.0 specification for the code-first Swagger JSON, but only 2.0 for the contract-first Swagger file.
 assertj-swagger compares Swagger objects like Paths, Parameters and Definitions. It does not compare __unimportant__ Swagger objects like info, descriptions or summaries.
 
 == Usage guide
@@ -48,15 +48,23 @@ repositories {
 compile "io.github.robwin:assertj-swagger:0.1.0"
 ----
 
-=== Using assertj-swagger in a unit test
+=== Using assertj-swagger in an integration test
+
+Using assertj-swagger is simple. For example, if you are using https://github.com/spring-projects/spring-boot[Spring Boot] and https://github.com/springfox/springfox[springfox] or https://github.com/swagger-api/swagger-core/wiki/Java-JAXRS-Quickstart[JAX-RS Swagger], you can validate your Swagger JSON in an integration test.
 
 [source, java]
 ----
-@Test
-public void validateThatImplementationFitsDesignSpecification(){
-    String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath();
-    String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
-    SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = Application.class)
+@IntegrationTest
+@WebAppConfiguration
+public class AssertjSwaggerTest {
+    @Test
+    public void validateThatImplementationFitsDesignSpecification(){
+        String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
+        SwaggerAssertions.assertThat("http://localhost:8080/v2/api-docs")
+            .isEqualTo(designFirstSwagger);
+    }
 }
 ----
 
@@ -65,26 +73,66 @@ public void validateThatImplementationFitsDesignSpecification(){
 [source]
 ----
 The following 4 assertions failed:
-1) [Checking Paths]
+1) [Checking Paths] 
 Expecting:
-  <["/pets", "/pets/findByError", "/pets/findByTags", "/pets/notDefiniedInSwaggerSpec", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
+  <["/api/pet", "/api/pet/findByStatus", "/api/pet/findByTags", "/api/pet/{petId}", "/api/store/order", "/api/store/order/{orderId}", "/api/user", "/api/user/createWithArray", "/api/user/createWithList", "/api/user/login", "/api/user/logout", "/api/user/{username}"]>
 to contain only:
   <["/pets", "/pets/findByStatus", "/pets/findByTags", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
 elements not found:
-  <["/pets/findByStatus"]>
+  <["/pets/findByTags", "/users/logout", "/users", "/stores/order", "/users/createWithArray", "/pets", "/users/createWithList", "/pets/findByStatus", "/pets/{petId}", "/users/{username}", "/stores/order/{orderId}", "/users/login"]>
 and elements not expected:
-  <["/pets/findByError", "/pets/notDefiniedInSwaggerSpec"]>
+  <["/api/store/order", "/api/user", "/api/user/createWithList", "/api/pet", "/api/pet/findByTags", "/api/user/createWithArray", "/api/user/login", "/api/pet/{petId}", "/api/store/order/{orderId}", "/api/user/{username}", "/api/pet/findByStatus", "/api/user/logout"]>
 
-2) [Checking 'DELETE' operation of path '/pets'] expected:<null> but was:<com.wordnik.swagger.models.Operation@515c6049>
-3) [Checking 'POST' operation of path '/pets']
-Expecting actual not to be null
-4) [Checking 'produces' of 'GET' operation of path '/pets/findByTags']
+2) [Checking properties of definition 'Order'] 
 Expecting:
-  <["application/json"]>
+  <["complete", "id", "identifier", "petId", "quantity", "shipDate", "status"]>
 to contain only:
-  <["application/json", "application/xml"]>
-but could not find the following elements:
-  <["application/xml"]>
+  <["id", "petId", "quantity", "shipDate", "status", "complete"]>
+elements not found:
+  <[]>
+and elements not expected:
+  <["identifier"]>
+
+3) [Checking properties of definition 'User'] 
+Expecting:
+  <["email", "firstName", "id", "identifier", "lastName", "password", "phone", "userStatus", "username"]>
+to contain only:
+  <["id", "username", "firstName", "lastName", "email", "password", "phone", "userStatus"]>
+elements not found:
+  <[]>
+and elements not expected:
+  <["identifier"]>
+
+4) [Checking properties of definition 'Pet'] 
+Expecting:
+  <["category", "id", "identifier", "name", "photoUrls", "status", "tags"]>
+to contain only:
+  <["id", "category", "name", "photoUrls", "tags", "status"]>
+elements not found:
+  <[]>
+and elements not expected:
+  <["identifier"]>
+----
+
+=== Using assertj-swagger in an unit test
+
+If you are using the https://github.com/spring-projects/spring-framework[spring-framework] and https://github.com/springfox/springfox[springfox], Spring's MVC Test framework can also be used to validate the Swagger JSON output against your contract-first Swagger specification.
+That way you can make sure that the implementation is in compliance with the design specification. 
+
+[source, java]
+----
+@Test
+public void validateThatImplementationFitsDesignSpecification() throws Exception {
+    String designFirstSwaggerLocation = Swagger2MarkupTest.class.getResource("/swagger.yaml").getPath();
+
+    MvcResult mvcResult = this.mockMvc.perform(get("/v2/api-docs")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    String springfoxSwaggerJson = mvcResult.getResponse().getContentAsString();
+    SwaggerAssertions.assertThat(springfoxSwaggerJson).isEqualTo(designFirstSwaggerLocation);
+}
 ----
 
 == License
