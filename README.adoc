@@ -70,6 +70,8 @@ public class AssertjSwaggerTest {
 
 ==== Example output
 
+Assertj-swagger fails a test if it finds differences between the implementation and the specification.
+
 [source]
 ----
 The following 4 assertions failed:
