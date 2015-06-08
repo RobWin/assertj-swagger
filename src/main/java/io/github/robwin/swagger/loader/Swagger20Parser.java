@@ -20,9 +20,9 @@ package io.github.robwin.swagger.loader;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wordnik.swagger.models.Swagger;
-import com.wordnik.swagger.util.Json;
-import com.wordnik.swagger.util.Yaml;
+import io.swagger.models.Swagger;
+import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 import org.apache.commons.lang3.Validate;
 
 import java.io.IOException;

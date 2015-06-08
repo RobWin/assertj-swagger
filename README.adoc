@@ -1,6 +1,6 @@
 = assertj-swagger
 :author: Robert Winkler
-:version: 0.1.1
+:version: 0.1.2
 :hardbreaks:
 
 image:https://travis-ci.org/RobWin/assertj-swagger.svg["Build Status", link="https://travis-ci.org/RobWin/assertj-swagger"] image:https://coveralls.io/repos/RobWin/assertj-swagger/badge.svg?branch=master["Coverage Status", link="https://coveralls.io/r/RobWin/assertj-swagger"] image:https://api.bintray.com/packages/robwin/maven/assertj-swagger/images/download.svg[link="https://bintray.com/robwin/maven/assertj-swagger/_latestVersion"] image:http://img.shields.io/badge/license-ASF2-blue.svg["Apache License 2", link="http://www.apache.org/licenses/LICENSE-2.0.txt"]
@@ -33,7 +33,7 @@ The project is published in JCenter and Maven Central.
 <dependency>
     <groupId>io.github.robwin</groupId>
     <artifactId>assertj-swagger</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ----
 
@@ -45,7 +45,7 @@ repositories {
     jcenter()
 }
 
-compile "io.github.robwin:assertj-swagger:0.1.1"
+compile "io.github.robwin:assertj-swagger:0.1.2"
 ----
 
 === Using assertj-swagger in an integration test

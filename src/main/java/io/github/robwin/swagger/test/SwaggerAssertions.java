@@ -18,7 +18,7 @@
  */
 package io.github.robwin.swagger.test;
 
-import com.wordnik.swagger.models.Swagger;
+import io.swagger.models.Swagger;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.Validate;
 

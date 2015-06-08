@@ -9,7 +9,7 @@ buildscript {
     }
 }
 description = 'A Swagger assertion library'
-version = '0.1.1'
+version = '0.1.2'
 group = 'io.github.robwin'
 
 apply plugin: 'java'
@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile "io.swagger:swagger-compat-spec-parser:1.0.5"
+    compile "io.swagger:swagger-compat-spec-parser:1.0.8"
     compile "commons-collections:commons-collections:3.2.1"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "org.assertj:assertj-core:2.0.0"

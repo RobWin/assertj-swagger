@@ -5,3 +5,6 @@
 
 === Version 0.1.1
 * Added a Swagger 2.0 parser which parses a Swagger String into a Swagger model
+
+=== Version 0.1.2
+* Updated swagger-parser from v1.0.6 to v1.0.8
