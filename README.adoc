@@ -3,7 +3,7 @@
 :version: 0.1.2
 :hardbreaks:
 
-image:https://travis-ci.org/RobWin/assertj-swagger.svg["Build Status", link="https://travis-ci.org/RobWin/assertj-swagger"] image:https://coveralls.io/repos/RobWin/assertj-swagger/badge.svg?branch=master["Coverage Status", link="https://coveralls.io/r/RobWin/assertj-swagger"] image:https://api.bintray.com/packages/robwin/maven/assertj-swagger/images/download.svg[link="https://bintray.com/robwin/maven/assertj-swagger/_latestVersion"] image:http://img.shields.io/badge/license-ASF2-blue.svg["Apache License 2", link="http://www.apache.org/licenses/LICENSE-2.0.txt"]
+image:https://travis-ci.org/RobWin/assertj-swagger.svg["Build Status", link="https://travis-ci.org/RobWin/assertj-swagger"] image:https://coveralls.io/repos/RobWin/assertj-swagger/badge.svg?branch=master["Coverage Status", link="https://coveralls.io/r/RobWin/assertj-swagger"] image:https://api.bintray.com/packages/robwin/maven/assertj-swagger/images/download.svg[link="https://bintray.com/robwin/maven/assertj-swagger/_latestVersion"] image:http://img.shields.io/badge/license-ASF2-blue.svg["Apache License 2", link="http://www.apache.org/licenses/LICENSE-2.0.txt"] image:https://img.shields.io/badge/Twitter-rbrtwnklr-blue.svg["Twitter", link="https://twitter.com/rbrtwnklr"]
 
 == Overview
 
