@@ -21,19 +21,21 @@ package io.github.robwin.swagger;
 import io.github.robwin.swagger.test.SwaggerAssertions;
 import org.junit.Test;
 
+import java.io.File;
+
 public class SwaggerAssertTest {
 
     @Test
     public void shouldFindNoDifferences(){
-        String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.json").getPath();
-        String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
-        SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
+        File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.json").getFile());
+        File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getFile());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInImplementation(){
-        String implFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath();
-        String designFirstSwaggerLocation = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
-        SwaggerAssertions.assertThat(implFirstSwaggerLocation).isEqualTo(designFirstSwaggerLocation);
+        File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/wrong_swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 }
