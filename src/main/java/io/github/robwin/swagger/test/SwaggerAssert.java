@@ -30,9 +30,10 @@ import org.apache.commons.collections.MapUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
 
 /**
  * Assertion methods for {@code Swagger}.
@@ -47,9 +48,16 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     private SoftAssertions softAssertions;
 
+    private static final String ASSERTION_ENABLED_CONFIG_PATH = "/assertj-swagger.properties";
+    private SwaggerAssertionConfig assertionConfig;
+
+    private AttributeResolver attributeResolver;   // provide means to fall back from local to global properties
+
+
     public SwaggerAssert(Swagger actual) {
         super(actual, SwaggerAssert.class);
         softAssertions = new SoftAssertions();
+        assertionConfig = loadSwaggerAssertionFlagsConfiguration();
     }
 
     /**
@@ -60,6 +68,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert isEqualTo(Swagger expected) {
+        attributeResolver = new AttributeResolver(expected, actual);
         validateSwagger(expected);
         return myself;
     }
@@ -72,16 +81,21 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert isEqualTo(String expectedLocation) {
-        validateSwagger(new SwaggerParser().read(expectedLocation));
-        return myself;
+        return isEqualTo(new SwaggerParser().read(expectedLocation));
     }
 
     private void validateSwagger(Swagger expected) {
         // Check Paths
-        validatePaths(actual.getPaths(), expected.getPaths());
+        if (isAssertionEnabled(SwaggerAssertionType.PATHS)) {
+            final Set<String> filter = assertionConfig.getPathsToIgnoreInExpected();
+            validatePaths(actual.getPaths(), removeAllFromMap(expected.getPaths(), filter));
+        }
 
         // Check Definitions
-        validateDefinitions(actual.getDefinitions(), expected.getDefinitions());
+        if (isAssertionEnabled(SwaggerAssertionType.DEFINITIONS)) {
+            final Set<String> filter = assertionConfig.getDefinitionsToIgnoreInExpected();
+            validateDefinitions(actual.getDefinitions(), removeAllFromMap(expected.getDefinitions(), filter));
+        }
 
         softAssertions.assertAll();
     }
@@ -140,6 +154,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
     }
 
     private void validateModel(Model actualDefinition, Model expectedDefinition, String message) {
+        if (isAssertionEnabled(SwaggerAssertionType.MODELS)) {
         if (expectedDefinition instanceof ModelImpl) {
             // TODO Validate ModelImpl
             softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(ModelImpl.class);
@@ -154,6 +169,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             // TODO Validate all model types
             softAssertions.assertThat(actualDefinition).isExactlyInstanceOf(expectedDefinition.getClass());
         }
+    }
     }
 
     private void validateDefinitionProperties(Map<String, Property> actualDefinitionProperties, Map<String, Property> expectedDefinitionProperties, String definitionName) {
@@ -175,16 +191,21 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     private void validateProperty(Property actualProperty, Property expectedProperty, String message) {
         // TODO Validate Property schema
-        if (expectedProperty != null) {
+        if (expectedProperty != null && isAssertionEnabled(SwaggerAssertionType.PROPERTIES)) {
             if (expectedProperty instanceof RefProperty) {
+                if (isAssertionEnabled(SwaggerAssertionType.REF_PROPERTIES)) {
                 RefProperty refProperty = (RefProperty) expectedProperty;
                 softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(RefProperty.class);
                 // TODO Validate RefProperty
+                }
             } else if (expectedProperty instanceof ArrayProperty) {
+                if (isAssertionEnabled(SwaggerAssertionType.ARRAY_PROPERTIES)) {
                 ArrayProperty arrayProperty = (ArrayProperty) expectedProperty;
                 softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(ArrayProperty.class);
                 // TODO Validate ArrayProperty
+                }
             } else if (expectedProperty instanceof StringProperty) {
+                if (isAssertionEnabled(SwaggerAssertionType.STRING_PROPERTIES)) {
                 StringProperty expectedStringProperty = (StringProperty) expectedProperty;
                 softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(StringProperty.class);
                 // TODO Validate StringProperty
@@ -196,6 +217,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
                     }else{
                         softAssertions.assertThat(actualStringProperty.getEnum()).isNullOrEmpty();
                     }
+                }
                 }
             } else {
                 // TODO Validate all other properties
@@ -211,9 +233,13 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             softAssertions.assertThat(actualOperation).as(message).isNotNull();
             if(actualOperation != null) {
                 //Validate consumes
-                validateList(actualOperation.getConsumes(), expectedOperation.getConsumes(),  String.format("Checking '%s' of '%s' operation of path '%s'", "consumes", httpMethod, path));
+                validateList(attributeResolver.getActualConsumes(actualOperation),
+                             attributeResolver.getExpectedConsumes((expectedOperation)),
+                             String.format("Checking '%s' of '%s' operation of path '%s'", "consumes", httpMethod, path));
                 //Validate produces
-                validateList(actualOperation.getProduces(), expectedOperation.getProduces(),  String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
+                validateList(attributeResolver.getActualProduces(actualOperation),
+                             attributeResolver.getExpectedProduces((expectedOperation)),
+                             String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
                 //Validate parameters
                 validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(), httpMethod, path);
                 //Validate responses
@@ -365,4 +391,71 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             softAssertions.assertThat(actualList).as(message).isNullOrEmpty();
         }
     }
+
+    private SwaggerAssertionConfig loadSwaggerAssertionFlagsConfiguration() {
+        final Properties props = new Properties();
+        try (final InputStream is = this.getClass().getResourceAsStream(ASSERTION_ENABLED_CONFIG_PATH)) {
+            if (is != null)
+                props.load(is);
+        } catch (final IOException ioe) {
+            // eat it.
+        }
+
+        return new SwaggerAssertionConfig(props);
+    }
+
+    private boolean isAssertionEnabled(final SwaggerAssertionType assertionType) {
+        return assertionConfig.swaggerAssertionEnabled(assertionType);
+    }
+
+    private <K, V> Map<K, V> removeAllFromMap(Map<K, V> map, Set<K> keysToExclude) {
+        final LinkedHashMap<K, V> result = new LinkedHashMap<>(map);
+        result.keySet().removeAll(keysToExclude);
+        return result;
+    }
+
+    /**
+     * Provide a means to retrieve values from various objects in the schema, providing a fallback to 'global'
+     * settings if they're not defined locally.
+     */
+    private class AttributeResolver {
+
+        private Swagger expected;
+        private Swagger actual;
+
+        public AttributeResolver(Swagger expected, Swagger actual) {
+            this.expected = expected;
+            this.actual = actual;
+        }
+
+        public List<String> getExpectedConsumes(Operation op) {
+            return getListWithFallback(op.getConsumes(), expected.getConsumes());
+        }
+
+        public List<String> getActualConsumes(Operation op) {
+            return getListWithFallback(op.getConsumes(), actual.getConsumes());
+        }
+
+        public List<String> getExpectedProduces(Operation op) {
+            return getListWithFallback(op.getProduces(), expected.getProduces());
+        }
+
+        public List<String> getActualProduces(Operation op) {
+            return getListWithFallback(op.getProduces(), actual.getProduces());
+        }
+
+        private <A> List<A> getListWithFallback(List<A> localDefn, List<A> globalDefn) {
+            final List<A> result;
+            if (localDefn != null && !localDefn.isEmpty()) {
+                result = localDefn;
+            } else if (globalDefn != null) {
+                result = globalDefn;
+            } else {
+                result = Collections.<A>emptyList();
+            }
+            return result;
+        }
+
+    }
+
 }
