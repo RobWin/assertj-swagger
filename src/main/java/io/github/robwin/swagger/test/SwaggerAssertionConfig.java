@@ -6,7 +6,7 @@ import java.util.*;
 
 public class SwaggerAssertionConfig {
 
-    private static final String PREFIX = "io.swagger.parser.";
+    private static final String PREFIX = "assertj.swagger.";
     private static final String IGNORE_MISSING_PATHS = "pathsToIgnoreInExpected";
     private static final String IGNORE_MISSING_DEFINITIONS = "definitionsToIgnoreInExpected";
 
