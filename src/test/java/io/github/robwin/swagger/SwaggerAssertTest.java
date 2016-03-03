@@ -18,7 +18,10 @@
  */
 package io.github.robwin.swagger;
 
+import io.github.robwin.swagger.test.SwaggerAssert;
 import io.github.robwin.swagger.test.SwaggerAssertions;
+import io.swagger.parser.SwaggerParser;
+import org.apache.commons.lang3.Validate;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,4 +41,15 @@ public class SwaggerAssertTest {
         File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getPath());
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
+
+    @Test()
+    public void shouldHandlePartiallyImplementedApi(){
+        File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/partial_impl_swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-partial-impl.properties")
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
 }

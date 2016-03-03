@@ -9,10 +9,13 @@ public class SwaggerAssertionConfig {
     private static final String PREFIX = "assertj.swagger.";
     private static final String IGNORE_MISSING_PATHS = "pathsToIgnoreInExpected";
     private static final String IGNORE_MISSING_DEFINITIONS = "definitionsToIgnoreInExpected";
+    private static final String IGNORE_MISSING_PROPERTIES = "propertiesToIgnoreInExpected";
 
     private Map<SwaggerAssertionType, Boolean> swaggerAssertionFlags = new HashMap<>();
 
     private Set<String> pathsToIgnoreInExpected = Collections.emptySet();
+
+    private Set<String> propertiesToIgnoreInExpected = Collections.emptySet();
 
     private Set<String> definitionsToIgnoreInExpected = Collections.emptySet();
 
@@ -42,12 +45,17 @@ public class SwaggerAssertionConfig {
 
         final String ignoreMissingPathsStr = props.getProperty(PREFIX + IGNORE_MISSING_PATHS);
         if (!StringUtils.isBlank(ignoreMissingPathsStr)) {
-            pathsToIgnoreInExpected = splitCommoaDelimStrIntoSet(ignoreMissingPathsStr);
+            pathsToIgnoreInExpected = splitCommaDelimStrIntoSet(ignoreMissingPathsStr);
         }
 
         final String ignoreMissingDefinitionsStr = props.getProperty(PREFIX + IGNORE_MISSING_DEFINITIONS);
         if (!StringUtils.isBlank(ignoreMissingDefinitionsStr)) {
-            definitionsToIgnoreInExpected = splitCommoaDelimStrIntoSet(ignoreMissingDefinitionsStr);
+            definitionsToIgnoreInExpected = splitCommaDelimStrIntoSet(ignoreMissingDefinitionsStr);
+        }
+
+        final String ignoreMissingPropertiesStr = props.getProperty(PREFIX + IGNORE_MISSING_PROPERTIES);
+        if (!StringUtils.isBlank(ignoreMissingPropertiesStr)) {
+            propertiesToIgnoreInExpected = splitCommaDelimStrIntoSet(ignoreMissingPropertiesStr);
         }
     }
 
@@ -64,9 +72,10 @@ public class SwaggerAssertionConfig {
         return definitionsToIgnoreInExpected;
     }
 
-    private Set<String> splitCommoaDelimStrIntoSet(String str) {
+    public Set<String> getPropertiesToIgnoreInExpected() { return propertiesToIgnoreInExpected; }
+
+    private Set<String> splitCommaDelimStrIntoSet(String str) {
         final String[] strs = str.split("\\s*,\\s*");
         return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(strs)));
     }
-
 }

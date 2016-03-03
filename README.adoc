@@ -175,6 +175,14 @@ assertj.swagger.definitionsToIgnoreInExpected=\
    Bar
 ----
 
+To ignore unimplemented properties, use something like:
+
+[source]
+----
+assertj.swagger.propertiesToIgnoreInExpected=\
+   Foo.prop1,\
+   Bar.prop2
+----
 
 
 == License
