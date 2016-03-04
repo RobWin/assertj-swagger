@@ -57,7 +57,17 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
     public SwaggerAssert(Swagger actual) {
         super(actual, SwaggerAssert.class);
         softAssertions = new SoftAssertions();
-        assertionConfig = loadSwaggerAssertionFlagsConfiguration();
+        assertionConfig = loadSwaggerAssertionFlagsConfiguration(ASSERTION_ENABLED_CONFIG_PATH);
+    }
+
+    public SwaggerAssert(Swagger actual, SwaggerAssertionConfig assertionConfig) {
+        this(actual);
+        this.assertionConfig = assertionConfig;
+    }
+
+    public SwaggerAssert(Swagger actual, String configurationResourceLocation) {
+        this(actual);
+        this.assertionConfig = loadSwaggerAssertionFlagsConfiguration(configurationResourceLocation);
     }
 
     /**
@@ -176,7 +186,8 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         if(MapUtils.isNotEmpty(expectedDefinitionProperties)) {
             softAssertions.assertThat(actualDefinitionProperties).as("Checking properties of definition '%s", definitionName).isNotEmpty();
             if(MapUtils.isNotEmpty(actualDefinitionProperties)){
-                softAssertions.assertThat(actualDefinitionProperties.keySet()).as("Checking properties of definition '%s'", definitionName).hasSameElementsAs(expectedDefinitionProperties.keySet());
+                final Set<String> filteredExpectedProperties = filterWhitelistedPropertyNames(definitionName, expectedDefinitionProperties.keySet());
+                softAssertions.assertThat(actualDefinitionProperties.keySet()).as("Checking properties of definition '%s'", definitionName).hasSameElementsAs(filteredExpectedProperties);
                 for (Map.Entry<String, Property> actualDefinitionPropertyEntry : actualDefinitionProperties.entrySet()) {
                     Property expectedDefinitionProperty = expectedDefinitionProperties.get(actualDefinitionPropertyEntry.getKey());
                     Property actualDefinitionProperty = actualDefinitionPropertyEntry.getValue();
@@ -184,7 +195,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
                     validateProperty(actualDefinitionProperty, expectedDefinitionProperty, String.format("Checking property '%s' of definition '%s'", propertyName, definitionName));
                 }
             }
-        }else{
+        } else {
             softAssertions.assertThat(actualDefinitionProperties).as("Checking properties of definition '%s", definitionName).isNullOrEmpty();
         }
     }
@@ -392,9 +403,9 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         }
     }
 
-    private SwaggerAssertionConfig loadSwaggerAssertionFlagsConfiguration() {
+    private SwaggerAssertionConfig loadSwaggerAssertionFlagsConfiguration(String configurationResourceLocation) {
         final Properties props = new Properties();
-        try (final InputStream is = this.getClass().getResourceAsStream(ASSERTION_ENABLED_CONFIG_PATH)) {
+        try (final InputStream is = this.getClass().getResourceAsStream(configurationResourceLocation)) {
             if (is != null)
                 props.load(is);
         } catch (final IOException ioe) {
@@ -406,6 +417,18 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     private boolean isAssertionEnabled(final SwaggerAssertionType assertionType) {
         return assertionConfig.swaggerAssertionEnabled(assertionType);
+    }
+
+    private Set<String> filterWhitelistedPropertyNames(String definitionName, Set<String> expectedPropertyNames) {
+        Set<String> result = new HashSet<>(expectedPropertyNames.size());
+        final Set<String> ignoredPropertyNames = assertionConfig.getPropertiesToIgnoreInExpected();
+        for (Iterator<String> i = expectedPropertyNames.iterator(); i.hasNext(); ) {
+            String property = i.next();
+            if (!ignoredPropertyNames.contains(definitionName + '.' + property)) {
+                result.add(property);
+            }
+        }
+        return result;
     }
 
     private <K, V> Map<K, V> removeAllFromMap(Map<K, V> map, Set<K> keysToExclude) {
