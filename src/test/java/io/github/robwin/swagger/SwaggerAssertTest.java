@@ -52,4 +52,14 @@ public class SwaggerAssertTest {
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test()
+    public void shouldHandleExpectedPathsWithPrefix(){
+        File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger_with_path_prefixes.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-path-prefix.properties")
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
 }

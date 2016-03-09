@@ -185,6 +185,35 @@ assertj.swagger.propertiesToIgnoreInExpected=\
 ----
 
 
+==== Comparing expected and actual paths in schemas
+
+It is occasionally useful to be able to compare schemas, where due to limitations in tools and libraries, endpoint
+paths don't align. Specifying a `basePath` setting in your design-first schema here won't work -- it's only used by
+Swagger tooling to generate paths at runtime, and does *not* form part of the logical pathname of your endpoints.
+For instance, in your design-first schema, you may specify a set of endpoints and a `basePath`, while your generated
+schema (generated from, say, Springfox) has a common prefix prepended on the endpoint paths; e.g.:
+
+[source]
+----
+/pets/findByStatus       ! design-first schema
+----
+
+and
+
+[source]
+----
+/v2/pets/findByStatus    ! actual schema
+----
+
+To ensure that assertj-swagger is comparing like-with-like in this situation, you could use the following in your
+configuration file:
+
+[source]
+----
+assertj.swagger.pathsPrependExpected=/v2
+----
+
+
 == License
 
 Copyright 2015 Robert Winkler

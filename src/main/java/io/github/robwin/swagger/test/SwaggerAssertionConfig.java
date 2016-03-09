@@ -10,6 +10,7 @@ public class SwaggerAssertionConfig {
     private static final String IGNORE_MISSING_PATHS = "pathsToIgnoreInExpected";
     private static final String IGNORE_MISSING_DEFINITIONS = "definitionsToIgnoreInExpected";
     private static final String IGNORE_MISSING_PROPERTIES = "propertiesToIgnoreInExpected";
+    private static final String PATHS_PREPEND_EXPECTED = "pathsPrependExpected";
 
     private Map<SwaggerAssertionType, Boolean> swaggerAssertionFlags = new HashMap<>();
 
@@ -18,6 +19,8 @@ public class SwaggerAssertionConfig {
     private Set<String> propertiesToIgnoreInExpected = Collections.emptySet();
 
     private Set<String> definitionsToIgnoreInExpected = Collections.emptySet();
+
+    private String pathsPrependExpected;
 
 
     /**
@@ -57,6 +60,8 @@ public class SwaggerAssertionConfig {
         if (!StringUtils.isBlank(ignoreMissingPropertiesStr)) {
             propertiesToIgnoreInExpected = splitCommaDelimStrIntoSet(ignoreMissingPropertiesStr);
         }
+
+        pathsPrependExpected = props.getProperty(PREFIX + PATHS_PREPEND_EXPECTED);
     }
 
     public boolean swaggerAssertionEnabled(SwaggerAssertionType assertionType) {
@@ -73,6 +78,10 @@ public class SwaggerAssertionConfig {
     }
 
     public Set<String> getPropertiesToIgnoreInExpected() { return propertiesToIgnoreInExpected; }
+
+    public String getPathsPrependExpected() {
+        return pathsPrependExpected;
+    }
 
     private Set<String> splitCommaDelimStrIntoSet(String str) {
         final String[] strs = str.split("\\s*,\\s*");
