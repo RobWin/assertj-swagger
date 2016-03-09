@@ -96,6 +96,9 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
     }
 
     private void validateSwagger(Swagger expected) {
+
+        validateInfo(actual.getInfo(), expected.getInfo());
+
         // Check Paths
         if (isAssertionEnabled(SwaggerAssertionType.PATHS)) {
             final Set<String> filter = assertionConfig.getPathsToIgnoreInExpected();
@@ -110,6 +113,19 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         }
 
         softAssertions.assertAll();
+    }
+
+    private void validateInfo(Info actualInfo, Info expectedInfo) {
+
+        // Version.  OFF by default.
+        if (isAssertionEnabled(SwaggerAssertionType.VERSION)) {
+            softAssertions.assertThat(actualInfo.getVersion()).as("Checking Version").isEqualTo(expectedInfo.getVersion());
+        }
+
+        // Everything (but potentially brittle, therefore OFF by default)
+        if (isAssertionEnabled(SwaggerAssertionType.INFO)) {
+            softAssertions.assertThat(actualInfo).as("Checking Info").isEqualToComparingFieldByField(expectedInfo);
+        }
     }
 
     private void validatePaths(Map<String, Path> actualPaths, Map<String, Path> expectedPaths) {

@@ -24,12 +24,12 @@ public class SwaggerAssertionConfig {
 
 
     /**
-     * Construct a {@link SwaggerAssertionConfig}.  All checks are enabled by default.
+     * Construct a {@link SwaggerAssertionConfig}.
      */
     public SwaggerAssertionConfig() {
         final SwaggerAssertionType[] assertionTypes = SwaggerAssertionType.values();
         for (final SwaggerAssertionType assertionType : assertionTypes) {
-            swaggerAssertionFlags.put(assertionType, Boolean.TRUE);
+            swaggerAssertionFlags.put(assertionType, assertionType.isEnabledByDefault());
         }
     }
 
@@ -43,7 +43,11 @@ public class SwaggerAssertionConfig {
         final SwaggerAssertionType[] assertionTypes = SwaggerAssertionType.values();
         for (final SwaggerAssertionType assertionType : assertionTypes) {
             final String value = props.getProperty(PREFIX + assertionType.getBarePropertyName());
-            swaggerAssertionFlags.put(assertionType, (value == null) || Boolean.TRUE.toString().equals(value));
+            if (value != null) {
+                swaggerAssertionFlags.put(assertionType, Boolean.TRUE.toString().equals(value));
+            } else {
+                swaggerAssertionFlags.put(assertionType, assertionType.isEnabledByDefault());
+            }
         }
 
         final String ignoreMissingPathsStr = props.getProperty(PREFIX + IGNORE_MISSING_PATHS);
@@ -66,7 +70,7 @@ public class SwaggerAssertionConfig {
 
     public boolean swaggerAssertionEnabled(SwaggerAssertionType assertionType) {
         final Boolean flag = swaggerAssertionFlags.get(assertionType);
-        return (flag != null ? flag : true);    // turn ON all checks by default
+        return (flag != null ? flag : assertionType.isEnabledByDefault());
     }
 
     public Set<String> getPathsToIgnoreInExpected() {

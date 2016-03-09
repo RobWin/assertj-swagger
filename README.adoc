@@ -139,11 +139,11 @@ public void validateThatImplementationFitsDesignSpecification() throws Exception
 
 === Customizing assertj-swagger's behaviour
 
-For most use cases, the default behaviour will be sufficient.  However, you can override the default behaviour in various ways by placing a Java property file, `/assertj-swagger.properties`, at the root of your classpath.
+For most use cases, the default behaviour will be sufficient.  However, you can override the default behaviour in various ways by placing a Java property file, `/assertj-swagger.properties`, at the root of your classpath.  It is also possible to override the configuration in your tests; construct an instance of the `SwaggerAssert` class with a custom configuration if this is required.
 
 The following overrides are available:
 
-==== Disable various types of checks
+==== Disable various types of checks which are enabled by default
 
 * `assertj.swagger.validateDefinitions=false`: disable all validation of definitions
 ** `assertj.swagger.validateProperties=false`: disable validation of properties of definitions
@@ -152,6 +152,13 @@ The following overrides are available:
 *** `assertj.swagger.validateStringProperties=false`: disable validation of string properties of definitions
 ** `assertj.swagger.validateModels=false`: disable validation of models
 * `assertj.swagger.validatePaths=false`: disable all validation of endpoint definitions
+
+==== Enable various types of checks which are disabled by default
+
+The following settings are disabled by default, as they will cause schema comparisions to be too brittle for many users. They can be enabled if required.
+
+* `assertj.swagger.validateInfo=true`: enable comparison of the info section
+* `assertj.swagger.validateVersion=true`: enable comparison of the schema version numbers
 
 ==== Disable checks for certain paths or definitions in 'actual' schema
 
