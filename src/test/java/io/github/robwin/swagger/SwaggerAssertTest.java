@@ -42,6 +42,15 @@ public class SwaggerAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferencesInInfo(){
+        // Otherwise-good comparison will fail here, because 'info.title' is different
+        File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getPath());
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-info.properties")
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
     @Test()
     public void shouldHandlePartiallyImplementedApi(){
         File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/partial_impl_swagger.json").getPath());
@@ -49,6 +58,16 @@ public class SwaggerAssertTest {
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-partial-impl.properties")
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test()
+    public void shouldHandleExpectedPathsWithPrefix(){
+        File implFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger_with_path_prefixes.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerAssertTest.class.getResource("/swagger.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-path-prefix.properties")
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 

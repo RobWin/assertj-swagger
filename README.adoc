@@ -139,11 +139,11 @@ public void validateThatImplementationFitsDesignSpecification() throws Exception
 
 === Customizing assertj-swagger's behaviour
 
-For most use cases, the default behaviour will be sufficient.  However, you can override the default behaviour in various ways by placing a Java property file, `/assertj-swagger.properties`, at the root of your classpath.
+For most use cases, the default behaviour will be sufficient.  However, you can override the default behaviour in various ways by placing a Java property file, `/assertj-swagger.properties`, at the root of your classpath.  It is also possible to override the configuration in your tests; construct an instance of the `SwaggerAssert` class with a custom configuration if this is required.
 
 The following overrides are available:
 
-==== Disable various types of checks
+==== Disable various types of checks which are enabled by default
 
 * `assertj.swagger.validateDefinitions=false`: disable all validation of definitions
 ** `assertj.swagger.validateProperties=false`: disable validation of properties of definitions
@@ -152,6 +152,13 @@ The following overrides are available:
 *** `assertj.swagger.validateStringProperties=false`: disable validation of string properties of definitions
 ** `assertj.swagger.validateModels=false`: disable validation of models
 * `assertj.swagger.validatePaths=false`: disable all validation of endpoint definitions
+
+==== Enable various types of checks which are disabled by default
+
+The following settings are disabled by default, as they will cause schema comparisions to be too brittle for many users. They can be enabled if required.
+
+* `assertj.swagger.validateInfo=true`: enable comparison of the info section
+* `assertj.swagger.validateVersion=true`: enable comparison of the schema version numbers
 
 ==== Disable checks for certain paths or definitions in 'actual' schema
 
@@ -182,6 +189,35 @@ To ignore unimplemented properties, use something like:
 assertj.swagger.propertiesToIgnoreInExpected=\
    Foo.prop1,\
    Bar.prop2
+----
+
+
+==== Comparing expected and actual paths in schemas
+
+It is occasionally useful to be able to compare schemas, where due to limitations in tools and libraries, endpoint
+paths don't align. Specifying a `basePath` setting in your design-first schema here won't work -- it's only used by
+Swagger tooling to generate paths at runtime, and does *not* form part of the logical pathname of your endpoints.
+For instance, in your design-first schema, you may specify a set of endpoints and a `basePath`, while your generated
+schema (generated from, say, Springfox) has a common prefix prepended on the endpoint paths; e.g.:
+
+[source]
+----
+/pets/findByStatus       ! design-first schema
+----
+
+and
+
+[source]
+----
+/v2/pets/findByStatus    ! actual schema
+----
+
+To ensure that assertj-swagger is comparing like-with-like in this situation, you could use the following in your
+configuration file:
+
+[source]
+----
+assertj.swagger.pathsPrependExpected=/v2
 ----
 
 

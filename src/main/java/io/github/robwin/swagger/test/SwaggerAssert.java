@@ -27,6 +27,7 @@ import io.swagger.models.properties.StringProperty;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.SoftAssertions;
 
@@ -95,10 +96,14 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
     }
 
     private void validateSwagger(Swagger expected) {
+
+        validateInfo(actual.getInfo(), expected.getInfo());
+
         // Check Paths
         if (isAssertionEnabled(SwaggerAssertionType.PATHS)) {
             final Set<String> filter = assertionConfig.getPathsToIgnoreInExpected();
-            validatePaths(actual.getPaths(), removeAllFromMap(expected.getPaths(), filter));
+            final Map<String, Path> expectedPaths = adjustExpectedPathsWithPrefix(expected.getPaths(), assertionConfig.getPathsPrependExpected());
+            validatePaths(actual.getPaths(), removeAllFromMap(expectedPaths, filter));
         }
 
         // Check Definitions
@@ -108,6 +113,19 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         }
 
         softAssertions.assertAll();
+    }
+
+    private void validateInfo(Info actualInfo, Info expectedInfo) {
+
+        // Version.  OFF by default.
+        if (isAssertionEnabled(SwaggerAssertionType.VERSION)) {
+            softAssertions.assertThat(actualInfo.getVersion()).as("Checking Version").isEqualTo(expectedInfo.getVersion());
+        }
+
+        // Everything (but potentially brittle, therefore OFF by default)
+        if (isAssertionEnabled(SwaggerAssertionType.INFO)) {
+            softAssertions.assertThat(actualInfo).as("Checking Info").isEqualToComparingFieldByField(expectedInfo);
+        }
     }
 
     private void validatePaths(Map<String, Path> actualPaths, Map<String, Path> expectedPaths) {
@@ -422,8 +440,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
     private Set<String> filterWhitelistedPropertyNames(String definitionName, Set<String> expectedPropertyNames) {
         Set<String> result = new HashSet<>(expectedPropertyNames.size());
         final Set<String> ignoredPropertyNames = assertionConfig.getPropertiesToIgnoreInExpected();
-        for (Iterator<String> i = expectedPropertyNames.iterator(); i.hasNext(); ) {
-            String property = i.next();
+        for (String property : expectedPropertyNames) {
             if (!ignoredPropertyNames.contains(definitionName + '.' + property)) {
                 result.add(property);
             }
@@ -436,6 +453,19 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
         result.keySet().removeAll(keysToExclude);
         return result;
     }
+
+    private Map<String, Path> adjustExpectedPathsWithPrefix(Map<String, Path> paths, String prefix) {
+        if (StringUtils.isBlank(prefix)) {
+            return paths;   // no path prefix configured, nothing to do
+        }
+
+        final Map<String, Path> adjustedPaths = new HashMap<>(paths.size());
+        for (final Map.Entry<String, Path> entry : paths.entrySet()) {
+            adjustedPaths.put(prefix + entry.getKey(), entry.getValue());
+        }
+        return adjustedPaths;
+    }
+
 
     /**
      * Provide a means to retrieve values from various objects in the schema, providing a fallback to 'global'
@@ -474,7 +504,7 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
             } else if (globalDefn != null) {
                 result = globalDefn;
             } else {
-                result = Collections.<A>emptyList();
+                result = Collections.emptyList();
             }
             return result;
         }

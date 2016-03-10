@@ -10,6 +10,7 @@ public class SwaggerAssertionConfig {
     private static final String IGNORE_MISSING_PATHS = "pathsToIgnoreInExpected";
     private static final String IGNORE_MISSING_DEFINITIONS = "definitionsToIgnoreInExpected";
     private static final String IGNORE_MISSING_PROPERTIES = "propertiesToIgnoreInExpected";
+    private static final String PATHS_PREPEND_EXPECTED = "pathsPrependExpected";
 
     private Map<SwaggerAssertionType, Boolean> swaggerAssertionFlags = new HashMap<>();
 
@@ -19,14 +20,16 @@ public class SwaggerAssertionConfig {
 
     private Set<String> definitionsToIgnoreInExpected = Collections.emptySet();
 
+    private String pathsPrependExpected;
+
 
     /**
-     * Construct a {@link SwaggerAssertionConfig}.  All checks are enabled by default.
+     * Construct a {@link SwaggerAssertionConfig}.
      */
     public SwaggerAssertionConfig() {
         final SwaggerAssertionType[] assertionTypes = SwaggerAssertionType.values();
         for (final SwaggerAssertionType assertionType : assertionTypes) {
-            swaggerAssertionFlags.put(assertionType, Boolean.TRUE);
+            swaggerAssertionFlags.put(assertionType, assertionType.isEnabledByDefault());
         }
     }
 
@@ -40,7 +43,11 @@ public class SwaggerAssertionConfig {
         final SwaggerAssertionType[] assertionTypes = SwaggerAssertionType.values();
         for (final SwaggerAssertionType assertionType : assertionTypes) {
             final String value = props.getProperty(PREFIX + assertionType.getBarePropertyName());
-            swaggerAssertionFlags.put(assertionType, (value == null) || Boolean.TRUE.toString().equals(value));
+            if (value != null) {
+                swaggerAssertionFlags.put(assertionType, Boolean.TRUE.toString().equals(value));
+            } else {
+                swaggerAssertionFlags.put(assertionType, assertionType.isEnabledByDefault());
+            }
         }
 
         final String ignoreMissingPathsStr = props.getProperty(PREFIX + IGNORE_MISSING_PATHS);
@@ -57,11 +64,13 @@ public class SwaggerAssertionConfig {
         if (!StringUtils.isBlank(ignoreMissingPropertiesStr)) {
             propertiesToIgnoreInExpected = splitCommaDelimStrIntoSet(ignoreMissingPropertiesStr);
         }
+
+        pathsPrependExpected = props.getProperty(PREFIX + PATHS_PREPEND_EXPECTED);
     }
 
     public boolean swaggerAssertionEnabled(SwaggerAssertionType assertionType) {
         final Boolean flag = swaggerAssertionFlags.get(assertionType);
-        return (flag != null ? flag : true);    // turn ON all checks by default
+        return (flag != null ? flag : assertionType.isEnabledByDefault());
     }
 
     public Set<String> getPathsToIgnoreInExpected() {
@@ -73,6 +82,10 @@ public class SwaggerAssertionConfig {
     }
 
     public Set<String> getPropertiesToIgnoreInExpected() { return propertiesToIgnoreInExpected; }
+
+    public String getPathsPrependExpected() {
+        return pathsPrependExpected;
+    }
 
     private Set<String> splitCommaDelimStrIntoSet(String str) {
         final String[] strs = str.split("\\s*,\\s*");
