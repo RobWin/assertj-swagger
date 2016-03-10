@@ -14,4 +14,7 @@
 
 == Version 0.2.0
 * Updated swagger-parser from v1.0.16 to v1.0.17
-* Added functionality to customize assertj-swagger's behaviour
+* PR #3: Added functionality to customize assertj-swagger's behaviour
+
+== Version 0.3.0
+* PR #6: Implemented configuration setting: 'pathsPrependExpected'; info and version comparison
