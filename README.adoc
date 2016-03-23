@@ -22,7 +22,7 @@ The project is published in JCenter and Maven Central.
 
 ==== Maven
 
-[source,xml]
+[source,xml, subs="specialcharacters,attributes"]
 ----
 <repositories>
     <repository>
@@ -38,19 +38,19 @@ The project is published in JCenter and Maven Central.
 <dependency>
     <groupId>io.github.robwin</groupId>
     <artifactId>assertj-swagger</artifactId>
-    <version>0.3.0</version>
+    <version>{version}</version>
 </dependency>
 ----
 
 ==== Gradle
 
-[source,groovy]
+[source,groovy, subs="attributes"]
 ----
 repositories {
     jcenter()
 }
 
-compile "io.github.robwin:assertj-swagger:0.3.0"
+compile "io.github.robwin:assertj-swagger:{version}"
 ----
 
 === Using assertj-swagger in an integration test
