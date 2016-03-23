@@ -51,14 +51,49 @@ public class SwaggerConsumerDrivenAssertTest {
                 .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
-    @Test()
-    public void shouldHandlePartiallyImplementedApi(){
+    @Test(expected = AssertionError.class)
+    public void shouldFindMissingPropertyInPartialModel(){
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singlemethod.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource-extraproperty.json").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
-        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-partial-impl.properties")
-                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindMissingMethodInPartialModel(){
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource-extramethod.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindMissingResourceInPartialModel(){
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-extraresource.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test()
+    public void shouldHandleConsumerContractSingleResource(){
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test()
+    public void shouldHandleConsumerContractPartialModel(){
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource-partialmodel.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test()

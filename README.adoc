@@ -7,8 +7,13 @@ image:https://travis-ci.org/RobWin/assertj-swagger.svg["Build Status", link="htt
 
 == Overview
 
-assertj-swagger is a https://github.com/joel-costigliola/assertj-core[assertj] library which compares a contract-first https://github.com/swagger-api/swagger-spec[Swagger] YAML/JSON file with a code-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox] or https://github.com/swagger-api/swagger-core/wiki/Java-JAXRS-Quickstart[JAX-RS Swagger]). assertj-swagger allows to validate that the API implementation is in compliance with the contract specification. The library supports the Swagger v2.0 specification.
-assertj-swagger compares Swagger objects like Paths, Parameters and Definitions. It does not compare __unimportant__ Swagger objects like info, descriptions or summaries.
+assertj-swagger is a https://github.com/joel-costigliola/assertj-core[assertj] library which compares a contract-first https://github.com/swagger-api/swagger-spec[Swagger] YAML/JSON file with a code-first Swagger JSON output (e.g. from https://github.com/springfox/springfox[springfox] or https://github.com/swagger-api/swagger-core/wiki/Java-JAXRS-Quickstart[JAX-RS Swagger]). assertj-swagger allows to validate that the API implementation is in compliance with a contract specification for two test patterns: Documentation Driven Contracts and Consumer Driven Contracts.
+
+The Documentation Driven Contracts test pattern, useful for public APIs, validates using "isEqualTo" and will validate that the design first documentation contract matches the implementation in its entirety.
+
+The Consumer Driven Contracts test pattern, useful for internal microservice APIs, validates using "satisfiesContract" and will validate that the implementation provides, at minimum, the requirements of the design first consumer contract.  This pattern allows for extension points in the API resources, resource methods, and models.
+
+The library supports the Swagger v2.0 specification. assertj-swagger compares Swagger objects like Paths, Parameters and Definitions. It does not compare __unimportant__ Swagger objects like info, descriptions or summaries.
 
 == Usage guide
 
@@ -52,15 +57,17 @@ compile "io.github.robwin:assertj-swagger:0.3.0"
 
 Using assertj-swagger is simple. For example, if you are using https://github.com/spring-projects/spring-boot[Spring Boot] and https://github.com/springfox/springfox[springfox] or https://github.com/swagger-api/swagger-core/wiki/Java-JAXRS-Quickstart[JAX-RS Swagger], you can validate your Swagger JSON in an integration test.
 
+The following code sample shows how to validate an API using the Documentation Driven Contract test pattern:
+
 [source, java]
 ----
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @IntegrationTest
 @WebAppConfiguration
-public class AssertjSwaggerTest {
+public class AssertjSwaggerDocumentationDrivenTest {
     @Test
-    public void validateThatImplementationFitsDesignSpecification(){
+    public void validateThatImplementationMatchesDocumentationSpecification(){
         String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger.yaml").getPath();
         SwaggerAssertions.assertThat("http://localhost:8080/v2/api-docs")
             .isEqualTo(designFirstSwagger);
@@ -68,9 +75,27 @@ public class AssertjSwaggerTest {
 }
 ----
 
+The following code sample shows how to validate an API using the Consumer Driven Contract test pattern:
+
+[source, java]
+----
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = Application.class)
+@IntegrationTest
+@WebAppConfiguration
+public class AssertjSwaggerConsumerDrivenTest {
+    @Test
+    public void validateThatImplementationSatisfiesConsumerSpecification(){
+        String designFirstSwagger = SwaggerAssertTest.class.getResource("/swagger-consumer1.yaml").getPath();
+        SwaggerAssertions.assertThat("http://localhost:8080/v2/api-docs")
+            .satisfiesContract(designFirstSwagger);
+    }
+}
+----
+
 ==== Example output
 
-Assertj-swagger fails a test if it finds differences between the implementation and the specification.
+For Documentation Driven Contract tests, Assertj-swagger fails a test if it finds differences between the implementation and the specification.
 
 [source]
 ----
@@ -116,16 +141,51 @@ and elements not expected:
   <["identifier"]>
 ----
 
-=== Using assertj-swagger in an unit test
+For Consumer Driven Contract tests,  Assertj-swagger fails a test if it finds missing resources, methods, models, or properties in the implementation which are required by the consumer specification.
+
+[source]
+----
+The following 4 assertions failed:
+1) [Checking Paths]
+Expecting:
+ <["/pets", "/pets/findByStatus", "/pets/findByTags", "/pets/{petId}", "/stores/order", "/stores/order/{orderId}", "/users", "/users/createWithArray", "/users/createWithList", "/users/login", "/users/logout", "/users/{username}"]>
+to contain:
+ <["/animals/{animalId}", "/pets", "/pets/findByStatus", "/pets/{petId}"]>
+but could not find:
+ <["/animals/{animalId}"]>
+
+2) [Checking Definitions]
+Expecting:
+ <["User", "Category", "Pet", "Tag", "Order"]>
+to contain:
+ <["Category", "Pet", "Animal", "Tag"]>
+but could not find:
+ <["Animal"]>
+
+3) [Checking properties of definition 'Pet']
+Expecting:
+ <["id", "category", "name", "photoUrls", "tags", "status"]>
+to contain:
+ <["photoUrls", "extraProperty", "name", "id", "category", "tags", "status"]>
+but could not find:
+ <["extraProperty"]>
+
+4) [Checking property 'extraProperty' of definition 'Pet']
+Expecting actual not to be null
+----
+
+=== Using assertj-swagger in a unit test
 
 If you are using the https://github.com/spring-projects/spring-framework[spring-framework] and https://github.com/springfox/springfox[springfox], Spring's MVC Test framework can also be used to validate the Swagger JSON output against your contract-first Swagger specification.
 That way you can make sure that the implementation is in compliance with the design specification. 
+
+The following code sample shows how to write a unit test using the Documentation Driven Contract test pattern:
 
 [source, java]
 ----
 @Test
 public void validateThatImplementationFitsDesignSpecification() throws Exception {
-    String designFirstSwaggerLocation = Swagger2MarkupTest.class.getResource("/swagger.yaml").getPath();
+    String designFirstDocumentationSwaggerLocation = Swagger2MarkupTest.class.getResource("/swagger.yaml").getPath();
 
     MvcResult mvcResult = this.mockMvc.perform(get("/v2/api-docs")
             .accept(MediaType.APPLICATION_JSON))
@@ -133,7 +193,25 @@ public void validateThatImplementationFitsDesignSpecification() throws Exception
             .andReturn();
 
     String springfoxSwaggerJson = mvcResult.getResponse().getContentAsString();
-    SwaggerAssertions.assertThat(Swagger20Parser.parse(springfoxSwaggerJson)).isEqualTo(designFirstSwaggerLocation);
+    SwaggerAssertions.assertThat(Swagger20Parser.parse(springfoxSwaggerJson)).isEqualTo(designFirstDocumentationSwaggerLocation);
+}
+----
+
+The following code sample shows how to write a unit test using the Consumer Driven Contract test pattern:
+
+[source, java]
+----
+@Test
+public void validateThatImplementationFitsDesignSpecification() throws Exception {
+    String designFirstConsumerSwaggerLocation = Swagger2MarkupTest.class.getResource("/swagger-consumer1.yaml").getPath();
+
+    MvcResult mvcResult = this.mockMvc.perform(get("/v2/api-docs")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    String springfoxSwaggerJson = mvcResult.getResponse().getContentAsString();
+    SwaggerAssertions.assertThat(Swagger20Parser.parse(springfoxSwaggerJson)).satisfiesContract(designFirstConsumerSwaggerLocation);
 }
 ----
 
