@@ -19,5 +19,5 @@
 == Version 0.3.0
 * PR #6: Implemented configuration setting: 'pathsPrependExpected'; info and version comparison
 
-== Version 0.3.0
+== Version 0.4.0
 * PR #7: Refactored to separate documentation driven from consumer driven pattern
