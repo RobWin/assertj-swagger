@@ -16,11 +16,10 @@ import java.util.*;
 /**
  * Created by raceconditions on 3/17/16.
  */
-public class ConsumerDrivenValidator implements ContractValidator {
+class ConsumerDrivenValidator implements ContractValidator {
 
     private SoftAssertions softAssertions;
 
-    private static final String ASSERTION_ENABLED_CONFIG_PATH = "/assertj-swagger.properties";
     private SwaggerAssertionConfig assertionConfig;
     private Swagger actual;
     private SchemaObjectResolver schemaObjectResolver;   // provide means to fall back from local to global properties
@@ -116,7 +115,9 @@ public class ConsumerDrivenValidator implements ContractValidator {
     private void validateDefinition(String definitionName, Model actualDefinition, Model expectedDefinition) {
         if (expectedDefinition != null && actualDefinition != null) {
             validateModel(actualDefinition, expectedDefinition, String.format("Checking model of definition '%s", definitionName));
-            validateDefinitionProperties(actualDefinition.getProperties(), expectedDefinition.getProperties(), definitionName);
+            validateDefinitionProperties(schemaObjectResolver.resolvePropertiesFromActual(actualDefinition),
+                                         schemaObjectResolver.resolvePropertiesFromExpected(expectedDefinition),
+                                         definitionName);
         }
     }
 

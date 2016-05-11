@@ -17,7 +17,6 @@ class DocumentationDrivenValidator implements ContractValidator {
 
     private SoftAssertions softAssertions;
 
-    private static final String ASSERTION_ENABLED_CONFIG_PATH = "/assertj-swagger.properties";
     private SwaggerAssertionConfig assertionConfig;
     private Swagger actual;
     private SchemaObjectResolver schemaObjectResolver;   // provide means to fall back from local to global properties
@@ -111,7 +110,9 @@ class DocumentationDrivenValidator implements ContractValidator {
     private void validateDefinition(String definitionName, Model actualDefinition, Model expectedDefinition) {
         if (expectedDefinition != null) {
             validateModel(actualDefinition, expectedDefinition, String.format("Checking model of definition '%s", definitionName));
-            validateDefinitionProperties(actualDefinition.getProperties(), expectedDefinition.getProperties(), definitionName);
+            validateDefinitionProperties(schemaObjectResolver.resolvePropertiesFromActual(actualDefinition),
+                                         schemaObjectResolver.resolvePropertiesFromExpected(expectedDefinition),
+                                         definitionName);
         }
     }
 

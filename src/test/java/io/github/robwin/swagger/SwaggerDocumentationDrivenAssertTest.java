@@ -71,4 +71,24 @@ public class SwaggerDocumentationDrivenAssertTest {
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test
+    public void shouldHandleDefinitionsUsingAllOf() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test
+    public void shouldHandleDefinitionsUsingAllOfIncludingCycles() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance-cycles.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
 }
