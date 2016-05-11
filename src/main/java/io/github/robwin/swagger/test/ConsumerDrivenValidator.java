@@ -23,7 +23,7 @@ public class ConsumerDrivenValidator implements ContractValidator {
     private static final String ASSERTION_ENABLED_CONFIG_PATH = "/assertj-swagger.properties";
     private SwaggerAssertionConfig assertionConfig;
     private Swagger actual;
-    private AttributeResolver attributeResolver;   // provide means to fall back from local to global properties
+    private SchemaObjectResolver schemaObjectResolver;   // provide means to fall back from local to global properties
 
     ConsumerDrivenValidator(Swagger actual, SwaggerAssertionConfig assertionConfig) {
         this.actual = actual;
@@ -32,8 +32,8 @@ public class ConsumerDrivenValidator implements ContractValidator {
     }
 
     @Override
-    public void validateSwagger(Swagger expected, AttributeResolver attributeResolver) {
-        this.attributeResolver = attributeResolver;
+    public void validateSwagger(Swagger expected, SchemaObjectResolver schemaObjectResolver) {
+        this.schemaObjectResolver = schemaObjectResolver;
 
         validateInfo(actual.getInfo(), expected.getInfo());
 
@@ -201,12 +201,12 @@ public class ConsumerDrivenValidator implements ContractValidator {
             softAssertions.assertThat(actualOperation).as(message).isNotNull();
             if(actualOperation != null) {
                 //Validate consumes
-                validateList(attributeResolver.getActualConsumes(actualOperation),
-                        attributeResolver.getExpectedConsumes((expectedOperation)),
+                validateList(schemaObjectResolver.getActualConsumes(actualOperation),
+                        schemaObjectResolver.getExpectedConsumes((expectedOperation)),
                         String.format("Checking '%s' of '%s' operation of path '%s'", "consumes", httpMethod, path));
                 //Validate produces
-                validateList(attributeResolver.getActualProduces(actualOperation),
-                        attributeResolver.getExpectedProduces((expectedOperation)),
+                validateList(schemaObjectResolver.getActualProduces(actualOperation),
+                        schemaObjectResolver.getExpectedProduces((expectedOperation)),
                         String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
                 //Validate parameters
                 validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(), httpMethod, path);
