@@ -17,10 +17,9 @@ class DocumentationDrivenValidator implements ContractValidator {
 
     private SoftAssertions softAssertions;
 
-    private static final String ASSERTION_ENABLED_CONFIG_PATH = "/assertj-swagger.properties";
     private SwaggerAssertionConfig assertionConfig;
     private Swagger actual;
-    private AttributeResolver attributeResolver;   // provide means to fall back from local to global properties
+    private SchemaObjectResolver schemaObjectResolver;   // provide means to fall back from local to global properties
 
     DocumentationDrivenValidator(Swagger actual, SwaggerAssertionConfig assertionConfig) {
         this.actual = actual;
@@ -28,8 +27,8 @@ class DocumentationDrivenValidator implements ContractValidator {
         softAssertions = new SoftAssertions();
     }
 
-    public void validateSwagger(Swagger expected, AttributeResolver attributeResolver) {
-        this.attributeResolver = attributeResolver;
+    public void validateSwagger(Swagger expected, SchemaObjectResolver schemaObjectResolver) {
+        this.schemaObjectResolver = schemaObjectResolver;
 
         validateInfo(actual.getInfo(), expected.getInfo());
 
@@ -111,7 +110,9 @@ class DocumentationDrivenValidator implements ContractValidator {
     private void validateDefinition(String definitionName, Model actualDefinition, Model expectedDefinition) {
         if (expectedDefinition != null) {
             validateModel(actualDefinition, expectedDefinition, String.format("Checking model of definition '%s", definitionName));
-            validateDefinitionProperties(actualDefinition.getProperties(), expectedDefinition.getProperties(), definitionName);
+            validateDefinitionProperties(schemaObjectResolver.resolvePropertiesFromActual(actualDefinition),
+                                         schemaObjectResolver.resolvePropertiesFromExpected(expectedDefinition),
+                                         definitionName);
         }
     }
 
@@ -196,12 +197,12 @@ class DocumentationDrivenValidator implements ContractValidator {
             softAssertions.assertThat(actualOperation).as(message).isNotNull();
             if(actualOperation != null) {
                 //Validate consumes
-                validateList(attributeResolver.getActualConsumes(actualOperation),
-                        attributeResolver.getExpectedConsumes((expectedOperation)),
+                validateList(schemaObjectResolver.getActualConsumes(actualOperation),
+                        schemaObjectResolver.getExpectedConsumes((expectedOperation)),
                         String.format("Checking '%s' of '%s' operation of path '%s'", "consumes", httpMethod, path));
                 //Validate produces
-                validateList(attributeResolver.getActualProduces(actualOperation),
-                        attributeResolver.getExpectedProduces((expectedOperation)),
+                validateList(schemaObjectResolver.getActualProduces(actualOperation),
+                        schemaObjectResolver.getExpectedProduces((expectedOperation)),
                         String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
                 //Validate parameters
                 validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(), httpMethod, path);

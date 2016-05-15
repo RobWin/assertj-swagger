@@ -29,21 +29,21 @@ import java.io.File;
 public class SwaggerConsumerDrivenAssertTest {
 
     @Test
-    public void shouldFindNoDifferences(){
+    public void shouldFindNoDifferences() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getFile());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getFile());
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldFindDifferencesInImplementation(){
+    public void shouldFindDifferencesInImplementation() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/wrong_swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldFindDifferencesInInfo(){
+    public void shouldFindDifferencesInInfo() {
         // Otherwise-good comparison will fail here, because 'info.title' is different
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
@@ -52,7 +52,7 @@ public class SwaggerConsumerDrivenAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldFindMissingPropertyInPartialModel(){
+    public void shouldFindMissingPropertyInPartialModel() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource-extraproperty.json").getPath());
 
@@ -61,7 +61,7 @@ public class SwaggerConsumerDrivenAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldFindMissingMethodInPartialModel(){
+    public void shouldFindMissingMethodInPartialModel() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource-extramethod.json").getPath());
 
@@ -70,7 +70,7 @@ public class SwaggerConsumerDrivenAssertTest {
     }
 
     @Test(expected = AssertionError.class)
-    public void shouldFindMissingResourceInPartialModel(){
+    public void shouldFindMissingResourceInPartialModel() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-extraresource.json").getPath());
 
@@ -78,8 +78,8 @@ public class SwaggerConsumerDrivenAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
-    @Test()
-    public void shouldHandleConsumerContractSingleResource(){
+    @Test
+    public void shouldHandleConsumerContractSingleResource() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource.json").getPath());
 
@@ -87,8 +87,8 @@ public class SwaggerConsumerDrivenAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
-    @Test()
-    public void shouldHandleConsumerContractPartialModel(){
+    @Test
+    public void shouldHandleConsumerContractPartialModel() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-singleresource-partialmodel.json").getPath());
 
@@ -96,14 +96,34 @@ public class SwaggerConsumerDrivenAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
-    @Test()
-    public void shouldHandleExpectedPathsWithPrefix(){
+    @Test
+    public void shouldHandleExpectedPathsWithPrefix() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger_with_path_prefixes.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-path-prefix.properties")
                 .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test
+    public void shouldHandleDefinitionsUsingAllOf() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test
+    public void shouldHandleDefinitionsUsingAllOfIncludingCycles() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance-cycles.json").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
 }

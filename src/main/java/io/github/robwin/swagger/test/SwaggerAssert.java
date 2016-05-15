@@ -69,8 +69,8 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert isEqualTo(Swagger expected) {
-        AttributeResolver attributeResolver = new AttributeResolver(expected, actual);
-        documentationDrivenValidator.validateSwagger(expected, attributeResolver);
+        SchemaObjectResolver schemaObjectResolver = new SchemaObjectResolver(expected, actual);
+        documentationDrivenValidator.validateSwagger(expected, schemaObjectResolver);
         return myself;
     }
 
@@ -93,8 +93,8 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert satisfiesContract(Swagger expected) {
-        AttributeResolver attributeResolver = new AttributeResolver(expected, actual);
-        consumerDrivenValidator.validateSwagger(expected, attributeResolver);
+        SchemaObjectResolver schemaObjectResolver = new SchemaObjectResolver(expected, actual);
+        consumerDrivenValidator.validateSwagger(expected, schemaObjectResolver);
         return myself;
     }
 
