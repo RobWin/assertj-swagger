@@ -20,4 +20,7 @@
 * PR #6: Implemented configuration setting: 'pathsPrependExpected'; info and version comparison
 
 == Version 0.4.0
-* PR #7: Refactored to separate documentation driven from consumer driven pattern
+* PR #7: Refactored to separate documentation driven from consumer driven
+
+== Version 0.5.0
+* PR #8: Make assertj-swagger "allOf"-aware
