@@ -43,6 +43,20 @@ public class SwaggerDocumentationDrivenAssertTest {
     }
 
     @Test(expected = AssertionError.class)
+    public void shouldFindDifferencesInParameterNaming(){
+        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger-name-changes.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferencesInRequiredness(){
+        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger-requiredness-changes.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInInfo(){
         // Otherwise-good comparison will fail here, because 'info.title' is different
         File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.json").getPath());

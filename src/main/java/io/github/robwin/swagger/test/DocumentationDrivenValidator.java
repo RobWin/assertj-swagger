@@ -220,7 +220,7 @@ class DocumentationDrivenValidator implements ContractValidator {
             softAssertions.assertThat(actualOperationParameters).as(message).isNotEmpty();
             if(CollectionUtils.isNotEmpty(actualOperationParameters)) {
                 softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParameters);
-                //softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
+                softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParameters);
                 Map<String,Parameter> expectedParametersAsMap = new HashMap<>();
                 for(Parameter expectedParameter : expectedOperationParameters){
                     expectedParametersAsMap.put(expectedParameter.getName(), expectedParameter);
