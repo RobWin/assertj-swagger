@@ -104,5 +104,15 @@ public class SwaggerDocumentationDrivenAssertTest {
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
-
+    
+    @Test
+    public void shouldHandleDefinitionsUsingAllOfForComposition() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-composition-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-composition.json").getPath());
+        
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+    
 }

@@ -27,7 +27,8 @@ class DocumentationDrivenValidator implements ContractValidator {
         softAssertions = new SoftAssertions();
     }
 
-    public void validateSwagger(Swagger expected, SchemaObjectResolver schemaObjectResolver) {
+    @Override
+	public void validateSwagger(Swagger expected, SchemaObjectResolver schemaObjectResolver) {
         this.schemaObjectResolver = schemaObjectResolver;
 
         validateInfo(actual.getInfo(), expected.getInfo());
@@ -128,7 +129,10 @@ class DocumentationDrivenValidator implements ContractValidator {
                 ArrayModel arrayModel = ((ArrayModel) expectedDefinition);
                 // TODO Validate ArrayModel
                 softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(ArrayModel.class);
-            }else{
+            } else if (expectedDefinition instanceof ComposedModel) {
+                ComposedModel composedModel = (ComposedModel) expectedDefinition;
+                softAssertions.assertThat(actualDefinition).as(message).isInstanceOfAny(ComposedModel.class, ModelImpl.class);
+            } else{
                 // TODO Validate all model types
                 softAssertions.assertThat(actualDefinition).isExactlyInstanceOf(expectedDefinition.getClass());
             }

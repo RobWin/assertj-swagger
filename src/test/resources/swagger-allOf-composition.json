@@ -1,0 +1,51 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Swagger Petstore API"
+    },
+    "paths": {
+    },
+    "definitions": {
+        "Id": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "AuditLog": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "modified": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "Item": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Id"
+                },
+                {
+                    "$ref": "#/definitions/AuditLog"
+                },
+                {
+                    "properties": {
+                        "status": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
