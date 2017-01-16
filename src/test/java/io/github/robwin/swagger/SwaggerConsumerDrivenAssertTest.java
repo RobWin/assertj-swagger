@@ -35,6 +35,20 @@ public class SwaggerConsumerDrivenAssertTest {
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test
+    public void shouldtolerateOptionalParameter() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-added-optional-parameter.json").getFile());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getFile());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldNotTolerateRequiredParameter() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-added-required-parameter.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
     @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInImplementation() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/wrong_swagger.json").getPath());

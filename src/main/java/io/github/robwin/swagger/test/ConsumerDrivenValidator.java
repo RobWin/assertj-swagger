@@ -221,23 +221,20 @@ class ConsumerDrivenValidator implements ContractValidator {
 
     private void validateParameters(List<Parameter> actualOperationParameters,  List<Parameter> expectedOperationParameters, String httpMethod, String path) {
         String message = String.format("Checking parameters of '%s' operation of path '%s'", httpMethod, path);
-        if(CollectionUtils.isNotEmpty(expectedOperationParameters)) {
-            softAssertions.assertThat(actualOperationParameters).as(message).isNotEmpty();
-            if(CollectionUtils.isNotEmpty(actualOperationParameters)) {
-                softAssertions.assertThat(actualOperationParameters).as(message).hasSameSizeAs(expectedOperationParameters);
-                //softAssertions.assertThat(actualOperationParameters).as(message).usingElementComparatorOnFields("in", "name", "required").hasSameElementsAs(expectedOperationParametersParameters);
-                Map<String,Parameter> expectedParametersAsMap = new HashMap<>();
-                for(Parameter expectedParameter : expectedOperationParameters){
-                    expectedParametersAsMap.put(expectedParameter.getName(), expectedParameter);
-                }
-                for(Parameter actualParameter : actualOperationParameters){
-                    String parameterName = actualParameter.getName();
-                    Parameter expectedParameter = expectedParametersAsMap.get(parameterName);
-                    validateParameter(actualParameter, expectedParameter, parameterName, httpMethod, path);
-                }
-            }
-        }else{
-            softAssertions.assertThat(actualOperationParameters).as(message).isNullOrEmpty();
+        Map<String, Parameter> actualParametersMap = new HashMap<>();
+        for (final Parameter parameter : actualOperationParameters) {
+            actualParametersMap.put(parameter.getName(), parameter);
+        }
+        // All expectedParameters must be there and must match.
+        for (final Parameter expectedParameter : expectedOperationParameters) {
+            final String parameterName = expectedParameter.getName();
+            Parameter actualParameter = actualParametersMap.remove(parameterName);
+            softAssertions.assertThat(actualParameter).as(message).isNotNull();
+            validateParameter(actualParameter, expectedParameter, parameterName, httpMethod, path);
+        }
+        // If there are any extra parameters, these are OK, as long as they are optional.
+        for (final Parameter extraParamter : actualParametersMap.values()) {
+            softAssertions.assertThat(extraParamter.getRequired()).as(message).isFalse();
         }
     }
 
