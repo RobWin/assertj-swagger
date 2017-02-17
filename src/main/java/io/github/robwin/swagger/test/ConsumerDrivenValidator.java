@@ -118,6 +118,26 @@ class ConsumerDrivenValidator implements ContractValidator {
             validateDefinitionProperties(schemaObjectResolver.resolvePropertiesFromActual(actualDefinition),
                                          schemaObjectResolver.resolvePropertiesFromExpected(expectedDefinition),
                                          definitionName);
+
+            if (expectedDefinition instanceof ModelImpl) {
+                validateDefinitionRequiredProperties(((ModelImpl)actualDefinition).getRequired(),
+                                                     ((ModelImpl)expectedDefinition).getRequired(),
+                                                       definitionName);
+            }
+        }
+    }
+
+    private void validateDefinitionRequiredProperties(List<String> actualRequiredProperties, List<String> expectedRequiredProperties, String definitionName) {
+        if(CollectionUtils.isNotEmpty(expectedRequiredProperties)) {
+            softAssertions.assertThat(actualRequiredProperties).as("Checking required properties of definition '%s'", definitionName).isNotEmpty();
+            if(CollectionUtils.isNotEmpty(actualRequiredProperties)){
+                softAssertions.assertThat(actualRequiredProperties).as("Checking properties of definition '%s'", definitionName).containsAll(expectedRequiredProperties);
+                for (String expectedRequiredProperty : expectedRequiredProperties) {
+                    softAssertions.assertThat(actualRequiredProperties.contains(expectedRequiredProperty)).as("Checking property '%s' of definition '%s' is required", expectedRequiredProperty, definitionName).isTrue();
+                }
+            }
+        } else {
+            softAssertions.assertThat(actualRequiredProperties).as("Checking required properties of definition '%s'", definitionName).isNullOrEmpty();
         }
     }
 
