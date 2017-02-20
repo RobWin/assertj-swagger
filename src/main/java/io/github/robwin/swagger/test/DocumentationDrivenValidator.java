@@ -127,8 +127,8 @@ class DocumentationDrivenValidator implements ContractValidator {
         if(CollectionUtils.isNotEmpty(expectedRequiredProperties)) {
             softAssertions.assertThat(actualRequiredProperties).as("Checking required properties of definition '%s'", definitionName).isNotEmpty();
             if(CollectionUtils.isNotEmpty(actualRequiredProperties)){
-                softAssertions.assertThat(actualRequiredProperties).as("Checking properties of definition '%s'", definitionName).containsAll(expectedRequiredProperties);
-                for (String expectedRequiredProperty : expectedRequiredProperties) {
+                final Set<String> filteredExpectedProperties = filterWhitelistedPropertyNames(definitionName, new HashSet<>(expectedRequiredProperties));
+                for (String expectedRequiredProperty : filteredExpectedProperties) {
                     softAssertions.assertThat(actualRequiredProperties.contains(expectedRequiredProperty)).as("Checking property '%s' of definition '%s' is required", expectedRequiredProperty, definitionName).isTrue();
                 }
             }
