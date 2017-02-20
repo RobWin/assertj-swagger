@@ -140,4 +140,11 @@ public class SwaggerConsumerDrivenAssertTest {
             .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferentRequiredFieldsForObjectDefinition() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-missing-required-field-object.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
 }

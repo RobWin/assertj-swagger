@@ -114,5 +114,15 @@ public class SwaggerDocumentationDrivenAssertTest {
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferentRequiredFieldsForObjectDefinition() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-missing-required-field-object.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
     
 }
