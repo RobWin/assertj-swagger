@@ -22,8 +22,8 @@ apply plugin: "com.jfrog.artifactory"
 apply from: 'gradle/publishing.gradle'
 
 tasks.withType(JavaCompile) {
-    sourceCompatibility = "1.7"
-    targetCompatibility = "1.7"
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
     options.deprecation = true
     options.encoding = 'UTF-8'
     options.compilerArgs << "-Xlint:unchecked"
