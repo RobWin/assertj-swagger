@@ -25,5 +25,5 @@
 == Version 0.5.0
 * PR #8: Make assertj-swagger "allOf"-aware
 
-== Version 0.5.2
+== Version 0.6.0
 * PR #17: assertj > 2.4 breaks SoftAssertions
