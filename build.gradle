@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile "io.swagger:swagger-compat-spec-parser:1.0.17"
+    compile "io.swagger:swagger-compat-spec-parser:1.0.32"
     compile "commons-collections:commons-collections:3.2.1"
     compile "org.slf4j:slf4j-api:1.7.12"
     compile "org.assertj:assertj-core:3.8.0"
