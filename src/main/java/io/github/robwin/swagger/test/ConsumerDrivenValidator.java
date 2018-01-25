@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.SoftAssertions;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Created by raceconditions on 3/17/16.
@@ -217,8 +218,8 @@ class ConsumerDrivenValidator implements ContractValidator {
     private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod){
         String message = String.format("Checking '%s' operation of path '%s'", httpMethod, path);
         if(expectedOperation != null){
-            softAssertions.assertThat(actualOperation).as(message).isNotNull();
             if(actualOperation != null) {
+                softAssertions.assertThat(actualOperation).as(message).isNotNull();
                 //Validate consumes
                 validateList(schemaObjectResolver.getActualConsumes(actualOperation),
                         schemaObjectResolver.getExpectedConsumes((expectedOperation)),
@@ -237,23 +238,33 @@ class ConsumerDrivenValidator implements ContractValidator {
         }
     }
 
-    private void validateParameters(List<Parameter> actualOperationParameters,  List<Parameter> expectedOperationParameters, String httpMethod, String path) {
+    private void validateParameters(final List<Parameter> actualOperationParameters,
+                                    final List<Parameter> expectedOperationParameters,
+                                    final String httpMethod,
+                                    final String path) {
+        verifyExpectedParameters(actualOperationParameters, expectedOperationParameters, httpMethod, path);
+        verifyUnexpectedParameters(actualOperationParameters, expectedOperationParameters, httpMethod, path);
+    }
+
+    private void verifyUnexpectedParameters(List<Parameter> actualOperationParameters,
+                                            List<Parameter> expectedOperationParameters,
+                                            String httpMethod,
+                                            String path) {
         String message = String.format("Checking parameters of '%s' operation of path '%s'", httpMethod, path);
-        Map<String, Parameter> actualParametersMap = new HashMap<>();
-        for (final Parameter parameter : actualOperationParameters) {
-            actualParametersMap.put(parameter.getName(), parameter);
-        }
-        // All expectedParameters must be there and must match.
-        for (final Parameter expectedParameter : expectedOperationParameters) {
-            final String parameterName = expectedParameter.getName();
-            Parameter actualParameter = actualParametersMap.remove(parameterName);
-            softAssertions.assertThat(actualParameter).as(message).isNotNull();
-            validateParameter(actualParameter, expectedParameter, parameterName, httpMethod, path);
-        }
-        // If there are any extra parameters, these are OK, as long as they are optional.
-        for (final Parameter extraParamter : actualParametersMap.values()) {
-            softAssertions.assertThat(extraParamter.getRequired()).as(message).isFalse();
-        }
+        Predicate<Parameter> notExpectedParameter = ((Predicate<Parameter>) expectedOperationParameters::contains).negate();
+        actualOperationParameters.stream().filter(notExpectedParameter).forEach(extraParameter ->
+                softAssertions.assertThat(extraParameter.getRequired()).as(message).isFalse()
+        );
+    }
+
+    private void verifyExpectedParameters(List<Parameter> actualOperationParameters,
+                                          List<Parameter> expectedOperationParameters,
+                                          String httpMethod,
+                                          String path) {
+        actualOperationParameters.forEach(actual -> {
+            Optional<Parameter> matchedActualParameter = expectedOperationParameters.stream().filter(actual::equals).findFirst();
+            matchedActualParameter.ifPresent(matched -> validateParameter(actual, matched, matched.getName(), httpMethod, path));
+        });
     }
 
     private void validateParameter(Parameter actualParameter, Parameter expectedParameter, String parameterName, String httpMethod, String path) {
