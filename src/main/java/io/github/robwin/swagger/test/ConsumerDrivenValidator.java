@@ -231,8 +231,6 @@ class ConsumerDrivenValidator implements ContractValidator {
                 //Validate responses
                 validateResponses(actualOperation.getResponses(), expectedOperation.getResponses(), httpMethod, path);
             }
-        }else{
-            softAssertions.assertThat(actualOperation).as(message).isNull();
         }
     }
 
