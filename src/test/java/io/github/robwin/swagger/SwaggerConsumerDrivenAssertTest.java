@@ -140,6 +140,15 @@ public class SwaggerConsumerDrivenAssertTest {
             .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test
+    public void shouldntFailWhenDesignHasNoDefinitionsButImplHasDefinitions() {
+        // not using swagger.json to avoid test failure because of issue 26 (where design api-doc is not allowed to have less operations under the same path)
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-pets-by-petId-without-get-and-post.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-no-definitions.json").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
     @Test(expected = AssertionError.class)
     public void shouldFindDifferentRequiredFieldsForObjectDefinition() {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-missing-required-field-object.json").getPath());

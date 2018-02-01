@@ -1,0 +1,85 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample server Petstore server.\n\n[Learn about Swagger](http://swagger.wordnik.com) or join the IRC channel `#swagger` on irc.freenode.net.\n\nFor this sample, you can use the api key `special-key` to test the authorization filters\n",
+        "version": "1.0.0",
+        "title": "Swagger Petstore API",
+        "termsOfService": "http://helloreverb.com/terms/",
+        "contact": {
+            "name": "apiteam@wordnik.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "petstore.swagger.wordnik.com",
+    "basePath": "/v2",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/pets/{petId}": {
+            "delete": {
+                "tags": [
+                    "pet"
+                ],
+                "summary": "Deletes a pet",
+                "description": "",
+                "operationId": "deletePet",
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "api_key",
+                        "description": "",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "path",
+                        "name": "petId",
+                        "description": "Pet id to delete",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid pet value"
+                    }
+                },
+                "security": [
+                    {
+                        "petstore_auth": [
+                            "write_pets",
+                            "read_pets"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "securityDefinitions": {
+        "api_key": {
+            "type": "apiKey",
+            "name": "api_key",
+            "in": "header"
+        },
+        "petstore_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "http://petstore.swagger.wordnik.com/api/oauth/dialog",
+            "flow": "implicit",
+            "scopes": {
+                "write_pets": "modify pets in your account",
+                "read_pets": "read your pets"
+            }
+        }
+    },
+    "definitions": {
+    }
+}
