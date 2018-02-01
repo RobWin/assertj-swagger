@@ -162,4 +162,13 @@ public class SwaggerConsumerDrivenAssertTest {
         SwaggerAssertions.assertThat(swaggerFile.getAbsolutePath()).satisfiesContract(swaggerFile.getAbsolutePath());
 
     }
+
+    @Test
+    public void shouldntFailWhenImplHasMoreOperationsOfSamePath() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-path-without-some-operations.json").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
 }
