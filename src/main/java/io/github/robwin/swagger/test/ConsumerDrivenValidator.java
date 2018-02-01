@@ -96,8 +96,6 @@ class ConsumerDrivenValidator implements ContractValidator {
                     validateDefinition(definitionName, actualDefinition, expectedDefinition);
                 }
             }
-        }else{
-            softAssertions.assertThat(actualDefinitions).as("Checking Definitions").isNullOrEmpty();
         }
     }
 
