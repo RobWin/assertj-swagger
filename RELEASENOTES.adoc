@@ -27,3 +27,9 @@
 
 == Version 0.6.0
 * PR #17: assertj > 2.4 breaks SoftAssertions
+
+== Version 0.7.0
+* Updated swagger-parser from v1.0.32 to v1.0.34
+* Updated assertj-core from v3.8.0 to v3.9.0
+* Fixed Issues: #24, #30, #28 and #26
+
