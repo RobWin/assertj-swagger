@@ -59,7 +59,6 @@
                         "type": "integer",
                         "format": "int64"
                     }
-
                 ],
                 "responses": {
                     "405": {
@@ -739,7 +738,7 @@
             }
         },
         "Pet": {
-            "description" : "Test description",
+            "description": "Test description",
             "required": [
                 "name",
                 "photoUrls"

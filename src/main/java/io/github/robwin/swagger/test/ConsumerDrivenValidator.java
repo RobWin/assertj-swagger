@@ -1,7 +1,22 @@
 package io.github.robwin.swagger.test;
 
-import io.swagger.models.*;
-import io.swagger.models.parameters.*;
+import io.swagger.models.ArrayModel;
+import io.swagger.models.Info;
+import io.swagger.models.Model;
+import io.swagger.models.ModelImpl;
+import io.swagger.models.Operation;
+import io.swagger.models.Path;
+import io.swagger.models.RefModel;
+import io.swagger.models.Response;
+import io.swagger.models.Swagger;
+import io.swagger.models.parameters.BodyParameter;
+import io.swagger.models.parameters.CookieParameter;
+import io.swagger.models.parameters.FormParameter;
+import io.swagger.models.parameters.HeaderParameter;
+import io.swagger.models.parameters.Parameter;
+import io.swagger.models.parameters.PathParameter;
+import io.swagger.models.parameters.QueryParameter;
+import io.swagger.models.parameters.RefParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
@@ -11,7 +26,13 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.SoftAssertions;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -68,9 +89,9 @@ class ConsumerDrivenValidator implements ContractValidator {
     }
 
     private void validatePaths(Map<String, Path> actualPaths, Map<String, Path> expectedPaths) {
-        if(MapUtils.isNotEmpty(expectedPaths)) {
+        if (MapUtils.isNotEmpty(expectedPaths)) {
             softAssertions.assertThat(actualPaths).as("Checking Paths").isNotEmpty();
-            if(MapUtils.isNotEmpty(actualPaths)){
+            if (MapUtils.isNotEmpty(actualPaths)) {
                 softAssertions.assertThat(actualPaths.keySet()).as("Checking Paths").containsAll(expectedPaths.keySet());
                 for (Map.Entry<String, Path> actualPathEntry : actualPaths.entrySet()) {
                     Path expectedPath = expectedPaths.get(actualPathEntry.getKey());
@@ -79,15 +100,15 @@ class ConsumerDrivenValidator implements ContractValidator {
                     validatePath(pathName, actualPath, expectedPath);
                 }
             }
-        }else{
+        } else {
             softAssertions.assertThat(actualPaths).as("Checking Paths").isNullOrEmpty();
         }
     }
 
     private void validateDefinitions(Map<String, Model> actualDefinitions, Map<String, Model> expectedDefinitions) {
-        if(MapUtils.isNotEmpty(expectedDefinitions)) {
+        if (MapUtils.isNotEmpty(expectedDefinitions)) {
             softAssertions.assertThat(actualDefinitions).as("Checking Definitions").isNotEmpty();
-            if(MapUtils.isNotEmpty(actualDefinitions)){
+            if (MapUtils.isNotEmpty(actualDefinitions)) {
                 softAssertions.assertThat(actualDefinitions.keySet()).as("Checking Definitions").containsAll(expectedDefinitions.keySet());
                 for (Map.Entry<String, Model> expectedDefinitionEntry : expectedDefinitions.entrySet()) {
                     Model expectedDefinition = expectedDefinitionEntry.getValue();
@@ -119,17 +140,17 @@ class ConsumerDrivenValidator implements ContractValidator {
                                          definitionName);
 
             if (expectedDefinition instanceof ModelImpl) {
-                validateDefinitionRequiredProperties(((ModelImpl)actualDefinition).getRequired(),
-                                                     ((ModelImpl)expectedDefinition).getRequired(),
+                validateDefinitionRequiredProperties(((ModelImpl) actualDefinition).getRequired(),
+                                                     ((ModelImpl) expectedDefinition).getRequired(),
                                                        definitionName);
             }
         }
     }
 
     private void validateDefinitionRequiredProperties(List<String> actualRequiredProperties, List<String> expectedRequiredProperties, String definitionName) {
-        if(CollectionUtils.isNotEmpty(expectedRequiredProperties)) {
+        if (CollectionUtils.isNotEmpty(expectedRequiredProperties)) {
             softAssertions.assertThat(actualRequiredProperties).as("Checking required properties of definition '%s'", definitionName).isNotEmpty();
-            if(CollectionUtils.isNotEmpty(actualRequiredProperties)){
+            if (CollectionUtils.isNotEmpty(actualRequiredProperties)) {
                 final Set<String> filteredExpectedProperties = filterWhitelistedPropertyNames(definitionName, new HashSet<>(expectedRequiredProperties));
                 softAssertions.assertThat(actualRequiredProperties).as("Checking required properties of definition '%s'", definitionName).hasSameElementsAs(filteredExpectedProperties);
             }
@@ -147,10 +168,10 @@ class ConsumerDrivenValidator implements ContractValidator {
                 // TODO Validate RefModel
                 softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(RefModel.class);
             } else if (expectedDefinition instanceof ArrayModel) {
-                ArrayModel arrayModel = ((ArrayModel) expectedDefinition);
+                ArrayModel arrayModel = (ArrayModel) expectedDefinition;
                 // TODO Validate ArrayModel
                 softAssertions.assertThat(actualDefinition).as(message).isExactlyInstanceOf(ArrayModel.class);
-            }else{
+            } else {
                 // TODO Validate all model types
                 softAssertions.assertThat(actualDefinition).isExactlyInstanceOf(expectedDefinition.getClass());
             }
@@ -158,9 +179,9 @@ class ConsumerDrivenValidator implements ContractValidator {
     }
 
     private void validateDefinitionProperties(Map<String, Property> actualDefinitionProperties, Map<String, Property> expectedDefinitionProperties, String definitionName) {
-        if(MapUtils.isNotEmpty(expectedDefinitionProperties)) {
+        if (MapUtils.isNotEmpty(expectedDefinitionProperties)) {
             softAssertions.assertThat(actualDefinitionProperties).as("Checking properties of definition '%s", definitionName).isNotEmpty();
-            if(MapUtils.isNotEmpty(actualDefinitionProperties)){
+            if (MapUtils.isNotEmpty(actualDefinitionProperties)) {
                 final Set<String> filteredExpectedProperties = filterWhitelistedPropertyNames(definitionName, expectedDefinitionProperties.keySet());
                 softAssertions.assertThat(actualDefinitionProperties.keySet()).as("Checking properties of definition '%s'", definitionName).containsAll(filteredExpectedProperties);
                 for (Map.Entry<String, Property> expectedDefinitionPropertyEntry : expectedDefinitionProperties.entrySet()) {
@@ -195,12 +216,12 @@ class ConsumerDrivenValidator implements ContractValidator {
                     StringProperty expectedStringProperty = (StringProperty) expectedProperty;
                     softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(StringProperty.class);
                     // TODO Validate StringProperty
-                    if(actualProperty instanceof StringProperty){
+                    if (actualProperty instanceof StringProperty) {
                         StringProperty actualStringProperty = (StringProperty) expectedProperty;
                         List<String> expectedEnums = expectedStringProperty.getEnum();
                         if (CollectionUtils.isNotEmpty(expectedEnums)) {
                             softAssertions.assertThat(actualStringProperty.getEnum()).hasSameElementsAs(expectedEnums);
-                        }else{
+                        } else {
                             softAssertions.assertThat(actualStringProperty.getEnum()).isNullOrEmpty();
                         }
                     }
@@ -213,18 +234,18 @@ class ConsumerDrivenValidator implements ContractValidator {
 
     }
 
-    private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod){
+    private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod) {
         String message = String.format("Checking '%s' operation of path '%s'", httpMethod, path);
-        if(expectedOperation != null){
-            if(actualOperation != null) {
+        if (expectedOperation != null) {
+            if (actualOperation != null) {
                 softAssertions.assertThat(actualOperation).as(message).isNotNull();
                 //Validate consumes
                 validateList(schemaObjectResolver.getActualConsumes(actualOperation),
-                        schemaObjectResolver.getExpectedConsumes((expectedOperation)),
+                        schemaObjectResolver.getExpectedConsumes(expectedOperation),
                         String.format("Checking '%s' of '%s' operation of path '%s'", "consumes", httpMethod, path));
                 //Validate produces
                 validateList(schemaObjectResolver.getActualProduces(actualOperation),
-                        schemaObjectResolver.getExpectedProduces((expectedOperation)),
+                        schemaObjectResolver.getExpectedProduces(expectedOperation),
                         String.format("Checking '%s' of '%s' operation of path '%s'", "produces", httpMethod, path));
                 //Validate parameters
                 validateParameters(actualOperation.getParameters(), expectedOperation.getParameters(), httpMethod, path);
@@ -264,7 +285,7 @@ class ConsumerDrivenValidator implements ContractValidator {
     }
 
     private void validateParameter(Parameter actualParameter, Parameter expectedParameter, String parameterName, String httpMethod, String path) {
-        if(expectedParameter != null) {
+        if (expectedParameter != null) {
             String message = String.format("Checking parameter '%s' of '%s' operation of path '%s'", parameterName, httpMethod, path);
             softAssertions.assertThat(actualParameter).as(message).isExactlyInstanceOf(expectedParameter.getClass());
             if (expectedParameter instanceof BodyParameter && actualParameter instanceof BodyParameter) {
@@ -331,18 +352,18 @@ class ConsumerDrivenValidator implements ContractValidator {
 
     private void validateResponses(Map<String, Response> actualOperationResponses, Map<String, Response> expectedOperationResponses, String httpMethod, String path) {
         String message = String.format("Checking responses of '%s' operation of path '%s'", httpMethod, path);
-        if(MapUtils.isNotEmpty(expectedOperationResponses)) {
+        if (MapUtils.isNotEmpty(expectedOperationResponses)) {
             softAssertions.assertThat(actualOperationResponses).as(message).isNotEmpty();
-            if(MapUtils.isNotEmpty(actualOperationResponses)) {
+            if (MapUtils.isNotEmpty(actualOperationResponses)) {
                 softAssertions.assertThat(actualOperationResponses.keySet()).as(message).hasSameElementsAs(expectedOperationResponses.keySet());
                 for (Map.Entry<String, Response> actualResponseEntry : actualOperationResponses.entrySet()) {
                     Response expectedResponse = expectedOperationResponses.get(actualResponseEntry.getKey());
                     Response actualResponse = actualResponseEntry.getValue();
                     String responseName = actualResponseEntry.getKey();
-                    validateResponse( actualResponse, expectedResponse, responseName, httpMethod, path);
+                    validateResponse(actualResponse, expectedResponse, responseName, httpMethod, path);
                 }
             }
-        }else{
+        } else {
             softAssertions.assertThat(actualOperationResponses).as(message).isNullOrEmpty();
         }
     }
@@ -356,9 +377,9 @@ class ConsumerDrivenValidator implements ContractValidator {
 
     private void validateResponseHeaders(Map<String, Property> actualResponseHeaders, Map<String, Property> expectedResponseHeaders, String responseName, String httpMethod, String path) {
         String message = String.format("Checking response headers of response '%s' of '%s' operation of path '%s'", responseName, httpMethod, path);
-        if(MapUtils.isNotEmpty(expectedResponseHeaders)) {
+        if (MapUtils.isNotEmpty(expectedResponseHeaders)) {
             softAssertions.assertThat(actualResponseHeaders).as(message).isNotEmpty();
-            if(MapUtils.isNotEmpty(actualResponseHeaders)){
+            if (MapUtils.isNotEmpty(actualResponseHeaders)) {
                 softAssertions.assertThat(actualResponseHeaders.keySet()).as(message).containsAll(expectedResponseHeaders.keySet());
                 for (Map.Entry<String, Property> expectedResponseHeaderEntry : expectedResponseHeaders.entrySet()) {
                     Property expectedResponseHeader = expectedResponseHeaderEntry.getValue();
@@ -367,18 +388,18 @@ class ConsumerDrivenValidator implements ContractValidator {
                     validateProperty(actualResponseHeader, expectedResponseHeader, String.format("Checking response header '%s' of response '%s' of '%s' operation of path '%s'", responseHeaderName, responseName, httpMethod, path));
                 }
             }
-        }else{
+        } else {
             softAssertions.assertThat(actualResponseHeaders).as(message).isNullOrEmpty();
         }
     }
 
-    private void validateList(List<String> actualList, List<String> expectedList, String message){
-        if(CollectionUtils.isNotEmpty(expectedList)) {
+    private void validateList(List<String> actualList, List<String> expectedList, String message) {
+        if (CollectionUtils.isNotEmpty(expectedList)) {
             softAssertions.assertThat(actualList).as(message).isNotEmpty();
-            if(CollectionUtils.isNotEmpty(actualList)) {
+            if (CollectionUtils.isNotEmpty(actualList)) {
                 softAssertions.assertThat(actualList).as(message).containsAll(expectedList);
             }
-        }else{
+        } else {
             softAssertions.assertThat(actualList).as(message).isNullOrEmpty();
         }
     }
