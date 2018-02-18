@@ -36,18 +36,17 @@ public class Swagger20Parser {
 
     private static Swagger convertToSwagger(String data) throws IOException {
         ObjectMapper mapper;
-        if(data.trim().startsWith("{")){
+        if (data.trim().startsWith("{")) {
             mapper = Json.mapper();
-        }
-        else {
+        } else {
             mapper = Yaml.mapper();
         }
         JsonNode rootNode = mapper.readTree(data);
         // must have swagger node set
         JsonNode swaggerNode = rootNode.get("swagger");
-        if(swaggerNode == null){
+        if (swaggerNode == null) {
             throw new IllegalArgumentException("Swagger String has an invalid format.");
-        }else{
+        } else {
             return mapper.convertValue(rootNode, Swagger.class);
         }
     }

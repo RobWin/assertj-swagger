@@ -1,9 +1,18 @@
 package io.github.robwin.swagger.test;
 
-import io.swagger.models.*;
+import io.swagger.models.ComposedModel;
+import io.swagger.models.Model;
+import io.swagger.models.Operation;
+import io.swagger.models.RefModel;
+import io.swagger.models.Swagger;
 import io.swagger.models.properties.Property;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -65,7 +74,7 @@ class SchemaObjectResolver {
             if (definitionProperties != null) {
                 allProperties.putAll(definitionProperties);
             }
-            for (final Model childDefinition : ((ComposedModel)definition).getAllOf()) {
+            for (final Model childDefinition : ((ComposedModel) definition).getAllOf()) {
                 allProperties.putAll(resolveProperties(childDefinition, owningSchema, seenRefs));
             }
             result = allProperties;

@@ -111,9 +111,10 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     private SwaggerAssertionConfig loadSwaggerAssertionFlagsConfiguration(String configurationResourceLocation) {
         final Properties props = new Properties();
-        try (final InputStream is = this.getClass().getResourceAsStream(configurationResourceLocation)) {
-            if (is != null)
+        try (InputStream is = this.getClass().getResourceAsStream(configurationResourceLocation)) {
+            if (is != null) {
                 props.load(is);
+            }
         } catch (final IOException ioe) {
             // eat it.
         }

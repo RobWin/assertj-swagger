@@ -421,7 +421,7 @@
             }
         },
         "Pet": {
-            "description" : "Test description",
+            "description": "Test description",
             "required": [
                 "name",
                 "photoUrls"
@@ -461,7 +461,7 @@
             }
         },
         "Animal": {
-            "description" : "Test description",
+            "description": "Test description",
             "required": [
                 "name"
             ],

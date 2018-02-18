@@ -18,13 +18,13 @@
  */
 package io.github.robwin.swagger;
 
-import java.io.File;
-
 import io.github.robwin.swagger.test.SwaggerAssert;
 import io.github.robwin.swagger.test.SwaggerAssertions;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.Validate;
 import org.junit.Test;
+
+import java.io.File;
 
 public class SwaggerConsumerDrivenAssertTest {
 
@@ -157,7 +157,7 @@ public class SwaggerConsumerDrivenAssertTest {
     }
 
     @Test
-    public void shouldPassTestForIdenticalParametersSetContainsParameterWithDifferentTypes(){
+    public void shouldPassTestForIdenticalParametersSetContainsParameterWithDifferentTypes() {
         File swaggerFile = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-with-multi-types-parameters.json").getPath());
         SwaggerAssertions.assertThat(swaggerFile.getAbsolutePath()).satisfiesContract(swaggerFile.getAbsolutePath());
 

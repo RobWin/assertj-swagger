@@ -2,7 +2,13 @@ package io.github.robwin.swagger.test;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class SwaggerAssertionConfig {
 
@@ -70,7 +76,7 @@ public class SwaggerAssertionConfig {
 
     public boolean swaggerAssertionEnabled(SwaggerAssertionType assertionType) {
         final Boolean flag = swaggerAssertionFlags.get(assertionType);
-        return (flag != null ? flag : assertionType.isEnabledByDefault());
+        return flag != null ? flag : assertionType.isEnabledByDefault();
     }
 
     public Set<String> getPathsToIgnoreInExpected() {
@@ -81,7 +87,9 @@ public class SwaggerAssertionConfig {
         return definitionsToIgnoreInExpected;
     }
 
-    public Set<String> getPropertiesToIgnoreInExpected() { return propertiesToIgnoreInExpected; }
+    public Set<String> getPropertiesToIgnoreInExpected() {
+        return propertiesToIgnoreInExpected;
+    }
 
     public String getPathsPrependExpected() {
         return pathsPrependExpected;

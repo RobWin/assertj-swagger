@@ -672,7 +672,7 @@
             }
         },
         "Pet": {
-            "description" : "Test description",
+            "description": "Test description",
             "required": [
                 "name",
                 "photoUrls"
