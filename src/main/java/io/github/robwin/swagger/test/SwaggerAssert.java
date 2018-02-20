@@ -19,11 +19,13 @@
 package io.github.robwin.swagger.test;
 
 import io.swagger.models.Swagger;
+import io.swagger.models.auth.AuthorizationValue;
 import io.swagger.parser.SwaggerParser;
 import org.assertj.core.api.AbstractAssert;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -83,6 +85,18 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      */
     public SwaggerAssert isEqualTo(String expectedLocation) {
         return isEqualTo(new SwaggerParser().read(expectedLocation));
+    }
+
+    /**
+     * Verifies that the actual value is equal to the given one.
+     * @param expectedLocation the location of the given value to compare the actual value to.
+     * @param auths List of io.swagger.models.auth.AuthorizationValue for access to the expectedLocation
+     * @return {@code this} assertion object.
+     * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
+     */
+    public SwaggerAssert isEqualTo(String expectedLocation, List<AuthorizationValue> auths) {
+
+        return isEqualTo(new SwaggerParser().read(expectedLocation, auths, true));
     }
 
     /**
