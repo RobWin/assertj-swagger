@@ -228,7 +228,7 @@ class ConsumerDrivenValidator implements ContractValidator {
                 }
             } else {
                 // TODO Validate all other properties
-                softAssertions.assertThat(actualProperty).isExactlyInstanceOf(expectedProperty.getClass());
+                softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(expectedProperty.getClass());
             }
         }
 
