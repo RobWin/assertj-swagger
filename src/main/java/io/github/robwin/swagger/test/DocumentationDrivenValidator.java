@@ -8,12 +8,11 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.models.properties.StringProperty;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.SoftAssertions;
 
 import java.util.*;
 
-class DocumentationDrivenValidator implements ContractValidator {
+class DocumentationDrivenValidator extends AbstractContractValidator {
 
     private SoftAssertions softAssertions;
 
@@ -36,8 +35,9 @@ class DocumentationDrivenValidator implements ContractValidator {
         // Check Paths
         if (isAssertionEnabled(SwaggerAssertionType.PATHS)) {
             final Set<String> filter = assertionConfig.getPathsToIgnoreInExpected();
-            final Map<String, Path> expectedPaths = adjustExpectedPathsWithPrefix(expected.getPaths(), assertionConfig.getPathsPrependExpected());
-            validatePaths(actual.getPaths(), removeAllFromMap(expectedPaths, filter));
+            final Map<String, Path> expectedPaths = findExpectedPaths(expected, assertionConfig);
+            final Map<String, Path> actualPaths = getPathsIncludingBasePath(actual);
+            validatePaths(actualPaths, removeAllFromMap(expectedPaths, filter));
         }
 
         // Check Definitions
@@ -397,17 +397,5 @@ class DocumentationDrivenValidator implements ContractValidator {
         final LinkedHashMap<K, V> result = new LinkedHashMap<>(map);
         result.keySet().removeAll(keysToExclude);
         return result;
-    }
-
-    private Map<String, Path> adjustExpectedPathsWithPrefix(Map<String, Path> paths, String prefix) {
-        if (StringUtils.isBlank(prefix)) {
-            return paths;   // no path prefix configured, nothing to do
-        }
-
-        final Map<String, Path> adjustedPaths = new HashMap<>(paths.size());
-        for (final Map.Entry<String, Path> entry : paths.entrySet()) {
-            adjustedPaths.put(prefix + entry.getKey(), entry.getValue());
-        }
-        return adjustedPaths;
     }
 }
