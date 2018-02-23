@@ -89,13 +89,13 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
 
     /**
      * Verifies that the actual value is equal to the given one.
+     *
      * @param expectedLocation the location of the given value to compare the actual value to.
-     * @param auths List of io.swagger.models.auth.AuthorizationValue for access to the expectedLocation
+     * @param auths List of io.swagger.models.auth.AuthorizationValue for access to protected locations.
      * @return {@code this} assertion object.
      * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
      */
     public SwaggerAssert isEqualTo(String expectedLocation, List<AuthorizationValue> auths) {
-
         return isEqualTo(new SwaggerParser().read(expectedLocation, auths, true));
     }
 
@@ -121,6 +121,18 @@ public class SwaggerAssert extends AbstractAssert<SwaggerAssert, Swagger> {
      */
     public SwaggerAssert satisfiesContract(String expectedLocation) {
         return satisfiesContract(new SwaggerParser().read(expectedLocation));
+    }
+
+    /**
+     * Verifies that the actual value is equal to the given one.
+     *
+     * @param expectedLocation the location of the given value to compare the actual value to.
+     * @param auths List of io.swagger.models.auth.AuthorizationValue for access to protected locations.
+     * @return {@code this} assertion object.
+     * @throws AssertionError if the actual value is not equal to the given one or if the actual value is {@code null}..
+     */
+    public SwaggerAssert satisfiesContract(String expectedLocation, List<AuthorizationValue> auths) {
+        return satisfiesContract(new SwaggerParser().read(expectedLocation, auths, true));
     }
 
     private SwaggerAssertionConfig loadSwaggerAssertionFlagsConfiguration(String configurationResourceLocation) {
