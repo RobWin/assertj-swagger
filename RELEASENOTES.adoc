@@ -33,3 +33,7 @@
 * Updated assertj-core from v3.8.0 to v3.9.0
 * Fixed Issues: #24, #30, #28 and #26
 
+== Version 0.8.0
+* PR #35: Added new isEqualTo with auth for secured endpoints
+* PR #36: Added missing validation message for property types
+* PR #37: Added basePath to paths if no path prefix is configured

@@ -10,7 +10,7 @@ buildscript {
     }
 }
 description = 'A Swagger assertion library'
-version = '0.7.1-SNAPSHOT'
+version = '0.8.0'
 group = 'io.github.robwin'
 
 apply plugin: 'java'
