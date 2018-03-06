@@ -193,7 +193,7 @@ public void validateThatImplementationFitsDesignSpecification() throws Exception
             .andReturn();
 
     String springfoxSwaggerJson = mvcResult.getResponse().getContentAsString();
-    SwaggerAssertions.assertThat(Swagger20Parser.parse(springfoxSwaggerJson)).isEqualTo(designFirstDocumentationSwaggerLocation);
+    SwaggerAssertions.assertThat(new SwaggerParser().parse(springfoxSwaggerJson)).isEqualTo(designFirstDocumentationSwaggerLocation);
 }
 ----
 
@@ -211,7 +211,7 @@ public void validateThatImplementationFitsDesignSpecification() throws Exception
             .andReturn();
 
     String springfoxSwaggerJson = mvcResult.getResponse().getContentAsString();
-    SwaggerAssertions.assertThat(Swagger20Parser.parse(springfoxSwaggerJson)).satisfiesContract(designFirstConsumerSwaggerLocation);
+    SwaggerAssertions.assertThat(new SwaggerParser().parse(springfoxSwaggerJson)).satisfiesContract(designFirstConsumerSwaggerLocation);
 }
 ----
 
