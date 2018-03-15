@@ -171,4 +171,11 @@ public class SwaggerConsumerDrivenAssertTest {
                 .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
+    @Test
+    public void shouldPassWhenParameterDescriptionIsDifferent() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-different-parameter-description.json").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+                         .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+    }
 }

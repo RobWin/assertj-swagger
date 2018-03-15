@@ -48,9 +48,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * Created by raceconditions on 3/17/16.
@@ -273,33 +271,38 @@ class ConsumerDrivenValidator extends AbstractContractValidator {
         }
     }
 
-    private void validateParameters(final List<Parameter> actualOperationParameters,
-                                    final List<Parameter> expectedOperationParameters,
-                                    final String httpMethod,
-                                    final String path) {
-        verifyExpectedParameters(actualOperationParameters, expectedOperationParameters, httpMethod, path);
-        verifyUnexpectedParameters(actualOperationParameters, expectedOperationParameters, httpMethod, path);
+    private void validateParameters(List<Parameter> actualOperationParameters,  List<Parameter> expectedOperationParameters, String httpMethod, String path) {
+        String message = String.format("Checking parameters of '%s' operation of path '%s'.", httpMethod, path);
+        Map<String, Parameter> actualParametersMap = new HashMap<>();
+        for (final Parameter parameter : actualOperationParameters) {
+            actualParametersMap.put(parameterUniqueKey(parameter), parameter);
+        }
+        // All expectedParameters must be there and must match.
+        for (final Parameter expectedParameter : expectedOperationParameters) {
+            final String parameterName = expectedParameter.getName();
+            Parameter actualParameter = actualParametersMap.remove(parameterUniqueKey(expectedParameter));
+            String actualParameterNotNullMessage = String.format("%s Expected parameter with name='%s' and in='%s' is missing", message, expectedParameter.getName(), expectedParameter.getIn());
+            softAssertions.assertThat(actualParameter).as(actualParameterNotNullMessage).isNotNull();
+            validateParameter(actualParameter, expectedParameter, parameterName, httpMethod, path);
+        }
+        // If there are any extra parameters, these are OK, as long as they are optional.
+        for (final Parameter extraParameter : actualParametersMap.values()) {
+            String extraParameterNotOptionalMessage = String.format("%s Unexpected parameter with name='%s' and in='%s' is missing", message, extraParameter.getName(), extraParameter.getIn());
+            softAssertions.assertThat(extraParameter.getRequired()).as(extraParameterNotOptionalMessage).isFalse();
+        }
     }
 
-    private void verifyUnexpectedParameters(List<Parameter> actualOperationParameters,
-                                            List<Parameter> expectedOperationParameters,
-                                            String httpMethod,
-                                            String path) {
-        String message = String.format("Checking parameters of '%s' operation of path '%s'", httpMethod, path);
-        Predicate<Parameter> notExpectedParameter = ((Predicate<Parameter>) expectedOperationParameters::contains).negate();
-        actualOperationParameters.stream().filter(notExpectedParameter).forEach(extraParameter ->
-                softAssertions.assertThat(extraParameter.getRequired()).as(message).isFalse()
-        );
-    }
-
-    private void verifyExpectedParameters(List<Parameter> actualOperationParameters,
-                                          List<Parameter> expectedOperationParameters,
-                                          String httpMethod,
-                                          String path) {
-        actualOperationParameters.forEach(actual -> {
-            Optional<Parameter> matchedActualParameter = expectedOperationParameters.stream().filter(actual::equals).findFirst();
-            matchedActualParameter.ifPresent(matched -> validateParameter(actual, matched, matched.getName(), httpMethod, path));
-        });
+    /**
+     * Generates a unique key for a parameter.
+     * <p>
+     * From <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#parameterObject" target="_top">OpenAPI Specification</a>
+     * "A unique parameter is defined by a combination of a name and location."
+     *
+     * @param parameter the parameter to generate a unique key for
+     * @return a unique key based on name and location ({@link Parameter#getIn()})
+     */
+    private String parameterUniqueKey(Parameter parameter) {
+        return parameter.getName() + parameter.getIn();
     }
 
     private void validateParameter(Parameter actualParameter, Parameter expectedParameter, String parameterName, String httpMethod, String path) {
