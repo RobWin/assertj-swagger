@@ -235,7 +235,7 @@ class DocumentationDrivenValidator extends AbstractContractValidator {
                     softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(StringProperty.class);
                     // TODO Validate StringProperty
                     if (actualProperty instanceof StringProperty) {
-                        StringProperty actualStringProperty = (StringProperty) expectedProperty;
+                        StringProperty actualStringProperty = (StringProperty) actualProperty;
                         List<String> expectedEnums = expectedStringProperty.getEnum();
                         if (CollectionUtils.isNotEmpty(expectedEnums)) {
                             softAssertions.assertThat(actualStringProperty.getEnum()).hasSameElementsAs(expectedEnums);
