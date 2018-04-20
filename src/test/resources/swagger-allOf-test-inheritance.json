@@ -18,7 +18,7 @@
                 "id"
             ]
         },
-        "Order": {
+        "OrderBase": {
             "type": "object",
             "allOf": [
                 {
@@ -46,6 +46,16 @@
                             "type": "boolean"
                         }
                     }
+                }
+            ]
+        },
+        "Order": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/OrderBase"
+                },
+                {
+                    "type": "object"
                 }
             ]
         }
