@@ -32,7 +32,8 @@ public enum SwaggerAssertionType {
             ARRAY_PROPERTIES("validateArrayProperties", true),
             STRING_PROPERTIES("validateStringProperties", true),
         MODELS("validateModels", true),
-    PATHS("validatePaths", true);
+    PATHS("validatePaths", true),
+    STRICT_VALIDATION_ON_PATH("validateResponseWithStrictlyMatch", true);
 
     private String suffix;
     private boolean enabledByDefault;
