@@ -230,6 +230,7 @@ The following overrides are available:
 *** `assertj.swagger.validateStringProperties=false`: disable validation of string properties of definitions
 ** `assertj.swagger.validateModels=false`: disable validation of models
 * `assertj.swagger.validatePaths=false`: disable all validation of endpoint definitions
+* `assertj.swagger.validateResponseWithStrictlyMatch=false`: allow actual contract return extra return code
 
 ==== Enable various types of checks which are disabled by default
 

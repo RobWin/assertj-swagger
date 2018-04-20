@@ -18,15 +18,29 @@
  */
 package io.github.robwin.swagger;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Properties;
+
 import io.github.robwin.swagger.test.SwaggerAssert;
+import io.github.robwin.swagger.test.SwaggerAssertionConfig;
 import io.github.robwin.swagger.test.SwaggerAssertions;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.Validate;
+import org.junit.After;
 import org.junit.Test;
 
-import java.io.File;
-
 public class SwaggerDocumentationDrivenAssertTest {
+    private static final String SWAGGER_CONFIG_LOCATION = "assertj-swagger.properties";
+    private static final File SWAGGER_CONFIG = new File(SWAGGER_CONFIG_LOCATION);
+
+    @After
+    public void tearDown() {
+        SWAGGER_CONFIG.deleteOnExit();
+    }
 
     @Test
     public void shouldFindNoDifferences() {
@@ -143,5 +157,30 @@ public class SwaggerDocumentationDrivenAssertTest {
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+    @Test
+    public void shouldAllowConfigurationToLooselyMatchResponse() throws IOException {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/designed-swagger-with-less-response-defined.yaml").getPath());
+        configureSwaggerAssertion();
+
+        SwaggerAssertionConfig config = getConfig();
+
+        SwaggerAssert swaggerAssert = new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), config);
+        swaggerAssert.isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    private SwaggerAssertionConfig getConfig() throws IOException {
+        Properties props = new Properties();
+        props.load(new FileReader(SWAGGER_CONFIG));
+        return new SwaggerAssertionConfig(props);
+    }
+
+    private void configureSwaggerAssertion() throws IOException {
+        Files.write(Paths.get(SWAGGER_CONFIG_LOCATION), toConfiguration().getBytes());
+    }
+
+    private String toConfiguration() {
+        return "assertj.swagger.validateResponseWithStrictlyMatch=false";
     }
 }

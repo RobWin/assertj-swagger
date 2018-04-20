@@ -18,6 +18,13 @@
  */
 package io.github.robwin.swagger.test;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Info;
@@ -43,13 +50,6 @@ import io.swagger.models.properties.StringProperty;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.assertj.core.api.SoftAssertions;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 class DocumentationDrivenValidator extends AbstractContractValidator {
 
@@ -368,7 +368,7 @@ class DocumentationDrivenValidator extends AbstractContractValidator {
         if (MapUtils.isNotEmpty(expectedOperationResponses)) {
             softAssertions.assertThat(actualOperationResponses).as(message).isNotEmpty();
             if (MapUtils.isNotEmpty(actualOperationResponses)) {
-                softAssertions.assertThat(actualOperationResponses.keySet()).as(message).hasSameElementsAs(expectedOperationResponses.keySet());
+                validateResponseByConfig(actualOperationResponses, expectedOperationResponses, message);
                 for (Map.Entry<String, Response> actualResponseEntry : actualOperationResponses.entrySet()) {
                     Response expectedResponse = expectedOperationResponses.get(actualResponseEntry.getKey());
                     Response actualResponse = actualResponseEntry.getValue();
@@ -378,6 +378,14 @@ class DocumentationDrivenValidator extends AbstractContractValidator {
             }
         } else {
             softAssertions.assertThat(actualOperationResponses).as(message).isNullOrEmpty();
+        }
+    }
+
+    private void validateResponseByConfig(Map<String, Response> actualOperationResponses, Map<String, Response> expectedOperationResponses, String message) {
+        if(isAssertionEnabled(SwaggerAssertionType.STRICT_VALIDATION_ON_PATH)) {
+            softAssertions.assertThat(actualOperationResponses.keySet()).as(message).hasSameElementsAs(expectedOperationResponses.keySet());
+        } else {
+            softAssertions.assertThat(actualOperationResponses.keySet()).as(message).containsAll(expectedOperationResponses.keySet());
         }
     }
 
