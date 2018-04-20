@@ -154,7 +154,7 @@ class DocumentationDrivenValidator extends AbstractContractValidator {
                                          schemaObjectResolver.resolvePropertiesFromExpected(expectedDefinition),
                                          definitionName);
 
-            if (expectedDefinition instanceof ModelImpl) {
+            if (expectedDefinition instanceof ModelImpl && actualDefinition instanceof ModelImpl) {
                 validateDefinitionRequiredProperties(((ModelImpl) actualDefinition).getRequired(),
                                                      ((ModelImpl) expectedDefinition).getRequired(),
                                                        definitionName);
