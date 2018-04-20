@@ -75,7 +75,8 @@ class SchemaObjectResolver {
     private Map<String, Property> resolveProperties(Model definition, Swagger owningSchema, Set<String> seenRefs) {
         Map<String, Property> result;
 
-        final Map<String, Property> definitionProperties = definition.getProperties();
+        // if the definition does not contain any property, then the model will return null instead of an empty map
+        final Map<String, Property> definitionProperties = definition.getProperties() != null ? definition.getProperties() : Collections.emptyMap();
 
         if (definition instanceof RefModel) {
             // Don't navigate ref-def cycles infinitely
