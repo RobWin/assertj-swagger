@@ -158,6 +158,7 @@ public class SwaggerDocumentationDrivenAssertTest {
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
                 .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
+
     @Test
     public void shouldAllowConfigurationToLooselyMatchResponse() throws IOException {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
@@ -182,5 +183,25 @@ public class SwaggerDocumentationDrivenAssertTest {
 
     private String toConfiguration() {
         return "assertj.swagger.validateResponseWithStrictlyMatch=false";
+    }
+        
+    @Test
+    public void shouldHandleRefEnumValues() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferentRefEnumValues() {
+        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref-wrong.json").getPath());
+        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 }
