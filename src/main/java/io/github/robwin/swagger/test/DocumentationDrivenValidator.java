@@ -155,10 +155,23 @@ class DocumentationDrivenValidator extends AbstractContractValidator {
                                          definitionName);
 
             if (expectedDefinition instanceof ModelImpl && actualDefinition instanceof ModelImpl) {
+                validateDefinitionEnum(actualDefinition, expectedDefinition);
                 validateDefinitionRequiredProperties(((ModelImpl) actualDefinition).getRequired(),
                                                      ((ModelImpl) expectedDefinition).getRequired(),
                                                        definitionName);
             }
+        }
+    }
+
+    private void validateDefinitionEnum(Model actualDefinition, Model expectedDefinition) {
+        ModelImpl expectedDefModelImpl = (ModelImpl)expectedDefinition;
+        ModelImpl actualDefModelImpl = (ModelImpl)actualDefinition;
+        List<String> actualEnums = actualDefModelImpl.getEnum();
+        List<String> expectedEnums = expectedDefModelImpl.getEnum();
+        if (CollectionUtils.isNotEmpty(expectedEnums)) {
+            softAssertions.assertThat(actualEnums).hasSameElementsAs(expectedEnums);
+        } else {
+            softAssertions.assertThat(actualEnums).isNullOrEmpty();
         }
     }
 
