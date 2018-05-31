@@ -35,29 +35,26 @@ import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.parameters.RefParameter;
-import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.Property;
-import io.swagger.models.properties.RefProperty;
-import io.swagger.models.properties.StringProperty;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.assertj.core.api.SoftAssertions;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.assertj.core.api.SoftAssertions;
 
 /**
  * Created by raceconditions on 3/17/16.
  */
 class ConsumerDrivenValidator extends AbstractContractValidator {
 
-    private SoftAssertions softAssertions;
-
     private SwaggerAssertionConfig assertionConfig;
+    private SoftAssertions softAssertions;
+    private PropertyValidator propertyValidator;
+
     private Swagger actual;
     private SchemaObjectResolver schemaObjectResolver;   // provide means to fall back from local to global properties
 
@@ -65,6 +62,7 @@ class ConsumerDrivenValidator extends AbstractContractValidator {
         this.actual = actual;
         this.assertionConfig = assertionConfig;
         softAssertions = new SoftAssertions();
+        propertyValidator = new PropertyValidator(assertionConfig, softAssertions);
     }
 
     @Override
@@ -213,41 +211,7 @@ class ConsumerDrivenValidator extends AbstractContractValidator {
     }
 
     private void validateProperty(Property actualProperty, Property expectedProperty, String message) {
-        // TODO Validate Property schema
-        if (expectedProperty != null && isAssertionEnabled(SwaggerAssertionType.PROPERTIES)) {
-            if (expectedProperty instanceof RefProperty) {
-                if (isAssertionEnabled(SwaggerAssertionType.REF_PROPERTIES)) {
-                    RefProperty refProperty = (RefProperty) expectedProperty;
-                    softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(RefProperty.class);
-                    // TODO Validate RefProperty
-                }
-            } else if (expectedProperty instanceof ArrayProperty) {
-                if (isAssertionEnabled(SwaggerAssertionType.ARRAY_PROPERTIES)) {
-                    ArrayProperty arrayProperty = (ArrayProperty) expectedProperty;
-                    softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(ArrayProperty.class);
-                    // TODO Validate ArrayProperty
-                }
-            } else if (expectedProperty instanceof StringProperty) {
-                if (isAssertionEnabled(SwaggerAssertionType.STRING_PROPERTIES)) {
-                    StringProperty expectedStringProperty = (StringProperty) expectedProperty;
-                    softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(StringProperty.class);
-                    // TODO Validate StringProperty
-                    if (actualProperty instanceof StringProperty) {
-                        StringProperty actualStringProperty = (StringProperty) expectedProperty;
-                        List<String> expectedEnums = expectedStringProperty.getEnum();
-                        if (CollectionUtils.isNotEmpty(expectedEnums)) {
-                            softAssertions.assertThat(actualStringProperty.getEnum()).hasSameElementsAs(expectedEnums);
-                        } else {
-                            softAssertions.assertThat(actualStringProperty.getEnum()).isNullOrEmpty();
-                        }
-                    }
-                }
-            } else {
-                // TODO Validate all other properties
-                softAssertions.assertThat(actualProperty).as(message).isExactlyInstanceOf(expectedProperty.getClass());
-            }
-        }
-
+        propertyValidator.validateProperty(actualProperty, expectedProperty, message);
     }
 
     private void validateOperation(Operation actualOperation, Operation expectedOperation, String path, String httpMethod) {
