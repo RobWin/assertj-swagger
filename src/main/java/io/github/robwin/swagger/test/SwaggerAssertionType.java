@@ -30,6 +30,7 @@ public enum SwaggerAssertionType {
         PROPERTIES("validateProperties", true),
             REF_PROPERTIES("validateRefProperties", true),
             ARRAY_PROPERTIES("validateArrayProperties", true),
+            BYTE_ARRAY_PROPERTIES("validateByteArrayProperties", true),
             STRING_PROPERTIES("validateStringProperties", true),
         MODELS("validateModels", true),
     PATHS("validatePaths", true),

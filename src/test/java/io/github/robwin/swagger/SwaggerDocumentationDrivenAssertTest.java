@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.Test;
 
 public class SwaggerDocumentationDrivenAssertTest {
+
     private static final String SWAGGER_CONFIG_LOCATION = "assertj-swagger.properties";
     private static final File SWAGGER_CONFIG = new File(SWAGGER_CONFIG_LOCATION);
 
@@ -44,130 +45,217 @@ public class SwaggerDocumentationDrivenAssertTest {
 
     @Test
     public void shouldFindNoDifferences() {
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.json").getFile());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getFile());
-        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.json").getFile());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getFile());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInImplementation() {
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/wrong_swagger.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
-        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/wrong_swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInParameterNaming() {
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger-name-changes.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
-        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger-name-changes.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInRequiredness() {
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger-requiredness-changes.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
-        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath()).isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger-requiredness-changes.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferencesInInfo() {
         // Otherwise-good comparison will fail here, because 'info.title' is different
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
-        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-info.properties")
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()),
+            "/assertj-swagger-info.properties")
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldHandlePartiallyImplementedApi() {
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/partial_impl_swagger.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/partial_impl_swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
-        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-partial-impl.properties")
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()),
+            "/assertj-swagger-partial-impl.properties")
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldHandleExpectedPathsWithPrefix() {
-        File implFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger_with_path_prefixes.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger_with_path_prefixes.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerDocumentationDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
-        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-path-prefix.properties")
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()),
+            "/assertj-swagger-path-prefix.properties")
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldHandleDefinitionsUsingAllOf() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance.json").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance.json").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
-        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()),
+            "/assertj-swagger-allOf.properties")
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldHandleDefinitionsUsingAllOfIncludingCycles() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance-cycles.json").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-test-inheritance-cycles.json").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
-        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-allOf.properties")
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()),
+            "/assertj-swagger-allOf.properties")
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldHandleDefinitionsUsingAllOfForComposition() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-composition-flat.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-composition.json").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-composition-flat.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-allOf-composition.json").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferentRequiredFieldsForObjectDefinition() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-missing-required-field-object.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-missing-required-field-object.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test
+    public void shouldHandleByteArrayValues() {
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferentByteArrayValues() {
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray-wrong.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test
+    public void shouldRefHandleByteArrayValues() {
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray-ref.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray-ref.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldFindDifferentRefByteArrayValues() {
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray-ref-wrong.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-bytearray-ref.yaml").getPath());
+
+        Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
+        new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldHandleEnumValues() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferentEnumValues() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-wrong.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-wrong.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
     public void shouldAllowConfigurationToLooselyMatchResponse() throws IOException {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/designed-swagger-with-less-response-defined.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/designed-swagger-with-less-response-defined.yaml")
+                .getPath());
         configureSwaggerAssertion();
 
         SwaggerAssertionConfig config = getConfig();
 
-        SwaggerAssert swaggerAssert = new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), config);
+        SwaggerAssert swaggerAssert = new SwaggerAssert(
+            new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), config);
         swaggerAssert.isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
@@ -184,24 +272,28 @@ public class SwaggerDocumentationDrivenAssertTest {
     private String toConfiguration() {
         return "assertj.swagger.validateResponseWithStrictlyMatch=false";
     }
-        
+
     @Test
     public void shouldHandleRefEnumValues() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
     public void shouldFindDifferentRefEnumValues() {
-        File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref-wrong.json").getPath());
-        File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.yaml").getPath());
+        File implFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref-wrong.json").getPath());
+        File designFirstSwaggerLocation = new File(
+            SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-enum-ref.yaml").getPath());
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()))
-                .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
+            .isEqualTo(designFirstSwaggerLocation.getAbsolutePath());
     }
 }
