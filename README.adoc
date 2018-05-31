@@ -227,6 +227,7 @@ The following overrides are available:
 ** `assertj.swagger.validateProperties=false`: disable validation of properties of definitions
 *** `assertj.swagger.validateRefProperties=false`: disable validation of reference (`$ref`) properties of definitions
 *** `assertj.swagger.validateArrayProperties=false`: disable validation of array properties of definitions
+*** `assertj.swagger.validateByteArrayProperties=false`: disable validation of byte-array properties of definitions
 *** `assertj.swagger.validateStringProperties=false`: disable validation of string properties of definitions
 ** `assertj.swagger.validateModels=false`: disable validation of models
 * `assertj.swagger.validatePaths=false`: disable all validation of endpoint definitions
