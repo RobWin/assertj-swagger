@@ -37,3 +37,14 @@
 * PR #35: Added new isEqualTo with auth for secured endpoints
 * PR #36: Added missing validation message for property types
 * PR #37: Added basePath to paths if no path prefix is configured
+
+== Version 0.9.0
+* PR #42: Updated assertJ to v3.9.1
+* PR #43: Fixed problem with validation of enum values
+* PR #44: Enabled configuration for loosely match responses
+* PR #45: Enhanced definition validation
+* PR #46: Avoid NPE if Definition does not contain properties
+* PR #47: Schema resolver avoid NPE
+* PR #48: Check definition instance before validating required properties
+* PR #49: Added validation for enums
+
