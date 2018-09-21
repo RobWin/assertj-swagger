@@ -1,0 +1,20 @@
+apply plugin: 'org.owasp.dependencycheck'
+
+check.dependsOn dependencyCheckAnalyze
+
+dependencyCheck {
+    cveValidForHours = 8
+    failBuildOnCVSS = 5
+    analyzers {
+        nexusEnabled = false
+        pyDistributionEnabled = false
+        pyPackageEnabled = false
+        rubygemsEnabled = false
+        cmakeEnabled = false
+        autoconfEnabled = false
+        composerEnabled = false
+        nodeEnabled = false
+        nuspecEnabled = false
+        assemblyEnabled = false
+    }
+}
