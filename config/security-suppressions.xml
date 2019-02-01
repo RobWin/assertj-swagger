@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+    <suppress>
+        <notes><![CDATA[
+        Suppressing the CVE for json-patch
+        ]]></notes>
+        <cve>CVE-2018-14632</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Suppressing the CVE for Guava
+        ]]></notes>
+        <cve>CVE-2018-10237</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Suppressing the CVE for jackson-databind
+        ]]></notes>
+        <cve>CVE-2018-1000873</cve>
+        <cve>CVE-2018-14719</cve>
+        <cve>CVE-2018-14720</cve>
+        <cve>CVE-2018-14721</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Suppressing the CVE for slf4j-ext
+        ]]></notes>
+        <cve>CVE-2018-8088</cve>
+    </suppress>
+</suppressions>
