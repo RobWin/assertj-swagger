@@ -20,6 +20,9 @@
         <cve>CVE-2018-14719</cve>
         <cve>CVE-2018-14720</cve>
         <cve>CVE-2018-14721</cve>
+        <cve>CVE-2018-19360</cve>
+        <cve>CVE-2018-19361</cve>
+        <cve>CVE-2018-19362</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
