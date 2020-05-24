@@ -1,6 +1,6 @@
 {
-        "id": 1,
-        "firstName": "Samuel",
-        "LastName": "Sampath",
-        "emailID": "abc1@gmail.com"
- }
+    "id": 1,
+    "firstName": "Samuel",
+    "lastName": "Sampath",
+    "emailID": "abc1@gmail.com"
+}

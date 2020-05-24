@@ -20,30 +20,18 @@ package io.github.robwin.swagger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import com.github.fge.jsonschema.core.report.LogLevel;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import io.github.robwin.swagger.test.JsonSchemaValidator;
+import io.github.robwin.swagger.test.JsonSchemaValidatorException;
 import io.github.robwin.swagger.test.SwaggerAssert;
 import io.github.robwin.swagger.test.SwaggerAssertions;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 
 public class SwaggerConsumerDrivenAssertTest {
 
@@ -199,21 +187,84 @@ public class SwaggerConsumerDrivenAssertTest {
     }
 
     @Test
-    public void performSchemaValidationWithValidResponse() throws IOException, ProcessingException {
+    public void performSchemaValidationWithValidResponse() throws IOException, JsonSchemaValidatorException {
         String schema = "/swaggerContacts.json", definition = "/validResponse.json";
         JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
         JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
-        ProcessingReport report = schemaValidator.validateSchemaWithParams("/definitions/Contacts", jsonNode);
-        Assert.assertTrue(report.isSuccess());
+        Boolean report = schemaValidator.validateSchemaWithDefinitionPath("/definitions/Contacts", jsonNode);
+        Assert.assertTrue(report);
     }
 
     @Test
-    public void performSchemaValidationWithInvalidResponse() throws IOException, ProcessingException {
+    public void performSchemaValidationWithInvalidResponse() throws IOException, JsonSchemaValidatorException {
         String schema = "/swaggerContacts.json", definition = "/invalidResponse.json";
         JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
         JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
-        ProcessingReport report = schemaValidator.validateSchemaWithParams("/definitions/Contacts", jsonNode);
-        Assert.assertFalse(report.isSuccess());
+        Boolean report = schemaValidator.validateSchemaWithDefinitionPath("/definitions/Contacts", jsonNode);
+        Assert.assertFalse(report);
+
+    }
+
+    @Test
+    public void performSchemaValidation() throws IOException, JsonSchemaValidatorException {
+
+        String greetingJson = "{\n" +
+            "    \"greeting\": {\n" +
+            "        \"firstName\": \"Doe\",\n" +
+            "        \"lastName\": \"Doe\"\n" +
+            "    }\n" +
+            "}";
+        String schema = "/greeting-schema.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromString(greetingJson);
+        Boolean report = schemaValidator.validateSchema(jsonNode);
+        Assert.assertTrue(report);
+
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPoint() throws IOException, JsonSchemaValidatorException {
+        String schema = "/swaggerContacts.json", definition = "/validResponseArray.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean report = schemaValidator.validateSchema("/contacts", jsonNode);
+        Assert.assertTrue(report);
+    }
+
+    @Test
+    public void performSchemaValidationUsingEndPointForInvalidResponse() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/InvalidResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", jsonNode);
+        Assert.assertFalse(bool);
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPointHavingMultipleRef() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/validResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", jsonNode);
+        Assert.assertTrue(bool);
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPointAndRequestType() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/validResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", "get",jsonNode);
+        Assert.assertTrue(bool);
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPointRequestTypeResponseCode() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/validResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", "get","200",jsonNode);
+        Assert.assertTrue(bool);
     }
 
 }
