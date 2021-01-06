@@ -5,6 +5,7 @@ check.dependsOn dependencyCheckAnalyze
 dependencyCheck {
     cveValidForHours = 8
     failBuildOnCVSS = 5
+    suppressionFiles = ["config/security-suppressions.xml"]
     analyzers {
         nexusEnabled = false
         pyDistributionEnabled = false
