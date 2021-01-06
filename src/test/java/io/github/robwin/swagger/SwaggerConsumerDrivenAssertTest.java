@@ -18,13 +18,20 @@
  */
 package io.github.robwin.swagger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jackson.JsonLoader;
+import io.github.robwin.swagger.test.JsonSchemaValidator;
+import io.github.robwin.swagger.test.JsonSchemaValidatorException;
 import io.github.robwin.swagger.test.SwaggerAssert;
 import io.github.robwin.swagger.test.SwaggerAssertions;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.Validate;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class SwaggerConsumerDrivenAssertTest {
 
@@ -62,7 +69,7 @@ public class SwaggerConsumerDrivenAssertTest {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.yaml").getPath());
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-info.properties")
-                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
@@ -117,7 +124,7 @@ public class SwaggerConsumerDrivenAssertTest {
 
         Validate.notNull(implFirstSwaggerLocation.getAbsolutePath(), "actualLocation must not be null!");
         new SwaggerAssert(new SwaggerParser().read(implFirstSwaggerLocation.getAbsolutePath()), "/assertj-swagger-path-prefix.properties")
-                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
@@ -146,7 +153,7 @@ public class SwaggerConsumerDrivenAssertTest {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-pets-by-petId-without-get-and-post.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-no-definitions.json").getPath());
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
-                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test(expected = AssertionError.class)
@@ -168,7 +175,7 @@ public class SwaggerConsumerDrivenAssertTest {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-path-without-some-operations.json").getPath());
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
-                .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
 
     @Test
@@ -176,6 +183,88 @@ public class SwaggerConsumerDrivenAssertTest {
         File implFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger.json").getPath());
         File designFirstSwaggerLocation = new File(SwaggerConsumerDrivenAssertTest.class.getResource("/swagger-different-parameter-description.json").getPath());
         SwaggerAssertions.assertThat(implFirstSwaggerLocation.getAbsolutePath())
-                         .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
+            .satisfiesContract(designFirstSwaggerLocation.getAbsolutePath());
     }
+
+    @Test
+    public void performSchemaValidationWithValidResponse() throws IOException, JsonSchemaValidatorException {
+        String schema = "/swaggerContacts.json", definition = "/validResponse.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean report = schemaValidator.validateSchemaWithDefinitionPath("/definitions/Contacts", jsonNode);
+        Assert.assertTrue(report);
+    }
+
+    @Test
+    public void performSchemaValidationWithInvalidResponse() throws IOException, JsonSchemaValidatorException {
+        String schema = "/swaggerContacts.json", definition = "/invalidResponse.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean report = schemaValidator.validateSchemaWithDefinitionPath("/definitions/Contacts", jsonNode);
+        Assert.assertFalse(report);
+
+    }
+
+    @Test
+    public void performSchemaValidation() throws IOException, JsonSchemaValidatorException {
+
+        String greetingJson = "{\n" +
+            "    \"greeting\": {\n" +
+            "        \"firstName\": \"Doe\",\n" +
+            "        \"lastName\": \"Doe\"\n" +
+            "    }\n" +
+            "}";
+        String schema = "/greeting-schema.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromString(greetingJson);
+        Boolean report = schemaValidator.validateSchema(jsonNode);
+        Assert.assertTrue(report);
+
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPoint() throws IOException, JsonSchemaValidatorException {
+        String schema = "/swaggerContacts.json", definition = "/validResponseArray.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean report = schemaValidator.validateSchema("/contacts", jsonNode);
+        Assert.assertTrue(report);
+    }
+
+    @Test
+    public void performSchemaValidationUsingEndPointForInvalidResponse() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/InvalidResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", jsonNode);
+        Assert.assertFalse(bool);
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPointHavingMultipleRef() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/validResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", jsonNode);
+        Assert.assertTrue(bool);
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPointAndRequestType() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/validResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", "get",jsonNode);
+        Assert.assertTrue(bool);
+    }
+
+    @Test
+    public void performSchemaValidationWithEndPointRequestTypeResponseCode() throws IOException,JsonSchemaValidatorException {
+        String schema = "/swagger.json", definition = "/validResponseForPets.json";
+        JsonSchemaValidator schemaValidator = new JsonSchemaValidator(new InputStreamReader(getClass().getResourceAsStream(schema)));
+        JsonNode jsonNode = JsonLoader.fromReader(new InputStreamReader(getClass().getResourceAsStream(definition)));
+        Boolean bool = schemaValidator.validateSchema("/pets/findByStatus", "get","200",jsonNode);
+        Assert.assertTrue(bool);
+    }
+
 }
